@@ -42,6 +42,7 @@ Scrapy==1.5.1
 service-identity==17.0.0
 six==1.11.0
 toml==0.9.6
+tqdm==4.26.0
 Twisted==18.7.0
 typed-ast==1.1.0
 urllib3==1.23
