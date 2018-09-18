@@ -4,15 +4,23 @@ import datetime
 import re
 
 import scrapy
+import validators
 
 DEFAULT_DATE_FORMAT = "%Y-%m-%d"
 
 class BaseScraper(scrapy.Spider):
 
     date_format = DEFAULT_DATE_FORMAT
+    encoding = "utf8"
 
     def parse_csv(self, response):
-        with io.StringIO(response.text) as a:
+
+        try:
+            csv_text = response.text
+        except AttributeError:
+            csv_text = response.body.decode(self.encoding)
+
+        with io.StringIO(csv_text) as a:
             csvreader = csv.DictReader(a)
             for k, row in enumerate(csvreader):
                 if self.settings.getbool("DEBUG_ENABLED") and k > self.settings.getint("DEBUG_ROWS", 100):
@@ -63,3 +71,66 @@ class BaseScraper(scrapy.Spider):
             return coyno.rjust(8, "0")
 
         return coyno
+
+    def split_address(self, address_str, address_parts=3, separator=", ", get_postcode=True):
+        """
+        Split an address string into postcode and address parts
+
+        Will produce an array of exactly `address_parts` length, with None
+        used in values that aren't present
+        """
+        address = [a.strip() for a in address_str.split(separator.strip())]
+        postcode = None
+
+        # if our list is greater than one item long then 
+        # we assume the last item is a postcode
+        if get_postcode:
+            if len(address) > 1:
+                postcode = address[-1]
+                address = address[0:-1]
+            else:
+                return address, None
+
+        # make a new address list that's exactly the right length
+        new_address = [None for n in range(address_parts)]
+        for k, _ in enumerate(new_address):
+            if len(address) > k:
+                if k+1 == address_parts:
+                    new_address[k] = separator.join(address[k:])
+                else:
+                    new_address[k] = address[k]
+
+        return new_address, postcode
+
+    def parse_url(self, url):
+        if url is None:
+            return None
+
+        url = url.strip()
+
+        if validators.url(url):
+            return url
+
+        if validators.url("http://%s" % url):
+            return "http://%s" % url
+
+        if url in ["n.a", 'non.e', '.0', '-.-', '.none', '.nil', 'N/A', 'TBC',
+                'under construction', '.n/a', '0.0', '.P', b'', 'no.website']:
+            return None
+
+        for i in ['http;//', 'http//', 'http.//', 'http:\\\\',
+                'http://http://', 'www://', 'www.http://']:
+            url = url.replace(i, 'http://')
+        url = url.replace('http:/www', 'http://www')
+
+        for i in ['www,', ':www', 'www:', 'www/', 'www\\\\', '.www']:
+            url = url.replace(i, 'www.')
+
+        url = url.replace(',', '.')
+        url = url.replace('..', '.')
+
+        if validators.url(url):
+            return url
+
+        if validators.url("http://%s" % url):
+            return "http://%s" % url

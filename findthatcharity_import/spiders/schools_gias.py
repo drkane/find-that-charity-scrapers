@@ -86,7 +86,7 @@ class GIASSpider(BaseScraper):
                 record.get("EstablishmentTypeGroup (name)"),
                 record.get("TypeOfEstablishment (name)"),
             ],
-            url=record.get("SchoolWebsite"),
+            url=self.parse_url(record.get("SchoolWebsite")),
             location=self.get_locations(record),
             latestIncome=None,
             dateModified=datetime.datetime.now(),

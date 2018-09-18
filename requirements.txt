@@ -10,6 +10,7 @@ colorama==0.3.9
 constantly==15.1.0
 cryptography==2.3.1
 cssselect==1.0.3
+decorator==4.3.0
 elasticsearch==6.3.1
 et-xmlfile==1.0.1
 humanize==0.5.1
@@ -44,6 +45,7 @@ toml==0.9.6
 Twisted==18.7.0
 typed-ast==1.1.0
 urllib3==1.23
+validators==0.12.2
 w3lib==1.19.0
 wrapt==1.10.11
 zope.interface==4.5.0

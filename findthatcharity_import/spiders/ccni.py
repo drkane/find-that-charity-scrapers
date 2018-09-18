@@ -8,14 +8,13 @@ import scrapy
 from .base_scraper import BaseScraper
 from ..items import Organisation
 
-class SchoolsNISpider(BaseScraper):
+class CCNISpider(BaseScraper):
     name = 'ccni'
     allowed_domains = ['charitycommissionni.org.uk', 'gist.githubusercontent.com']
     start_urls = [
         "http://www.charitycommissionni.org.uk/charity-search/?q=&include=Linked&include=Removed&exportCSV=1",
         "https://gist.githubusercontent.com/BobHarper1/2687545c562b47bc755aef2e9e0de537/raw/ac052c33fd14a08dd4c2a0604b54c50bc1ecc0db/ccni_extra"
     ]
-    skip_rows = 5
     org_id_prefix = "GB-NIC"
     id_field = "Reg charity number"
     date_fields = ["Date registered", "Date for financial year ending"]
@@ -92,7 +91,7 @@ class SchoolsNISpider(BaseScraper):
             "email": record.get("Email"),
             "description": None,
             "organisationType": org_types,
-            "url": record.get("Website"),
+            "url": self.parse_url(record.get("Website")),
             "location": [],
             "latestIncome": int(record["Total income"]) if record.get("Total income") else None,
             "dateModified": datetime.datetime.now(),
@@ -116,32 +115,3 @@ class SchoolsNISpider(BaseScraper):
             return "NI" + coyno.rjust(6, "0")
 
         return coyno
-
-    def split_address(self, address_str, address_parts=3, separator=", "):
-        """
-        Split an address string into postcode and address parts
-
-        Will produce an array of exactly `address_parts` length, with None
-        used in values that aren't present
-        """
-        address = [a.strip() for a in address_str.split(separator.strip())]
-        postcode = None
-
-        # if our list is greater than one item long then 
-        # we assume the last item is a postcode
-        if len(address) > 1:
-            postcode = address[-1]
-            address = address[0:-1]
-        else:
-            return address, None
-
-        # make a new address list that's exactly the right length
-        new_address = [None for n in range(address_parts)]
-        for k, _ in enumerate(new_address):
-            if len(address) > k:
-                if k+1 == address_parts:
-                    new_address[k] = separator.join(address[k:])
-                else:
-                    new_address[k] = address[k]
-
-        return new_address, postcode
