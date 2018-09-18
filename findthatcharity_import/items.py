@@ -31,6 +31,11 @@ class Organisation(scrapy.Item):
     orgIDs           = scrapy.Field()
     sources          = scrapy.Field()
 
+    # @TODO:
+    # Add `latestIncomeDate` field to show when it was added
+    # Add `CompleteName` field for autocomplete
+    # Add `Classification` fields?
+
     def __repr__(self):
         return '<Org {} "{}">'.format(self.get("id"), self.get("name"))
 

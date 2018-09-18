@@ -37,7 +37,7 @@ class CCNISpider(BaseScraper):
         "distribution": [
             {
                 "downloadURL": "",
-                "accessURL": "",
+                "accessURL": "http://www.charitycommissionni.org.uk/charity-search/",
                 "title": "Charity Commission for Northern Ireland charity search"
             }
         ],
@@ -47,6 +47,9 @@ class CCNISpider(BaseScraper):
         return [scrapy.Request(self.start_urls[1], callback=self.download_file)]
 
     def download_file(self, response):
+
+        self.source["distribution"][0]["downloadURL"] = self.start_urls[0]
+        self.source["modified"] = datetime.datetime.now().isoformat()
 
         # set up extra names db first
         self.extra_names = {}
