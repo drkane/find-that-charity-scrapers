@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
 import re
-import csv
-import io
 
 import scrapy
 

@@ -4,7 +4,7 @@ import datetime
 import scrapy
 
 from .base_scraper import BaseScraper
-from ..items import Organisation, AREA_TYPES
+from ..items import Organisation
 
 class SchoolsNISpider(BaseScraper):
     name = 'schoolsni'
