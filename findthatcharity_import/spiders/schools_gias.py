@@ -76,7 +76,7 @@ class GIASSpider(BaseScraper):
             addressLocality=record.get("Locality"),
             addressRegion=record.get("Address3"),
             addressCountry=record.get("Country (name)"),
-            postalCode=record.get("Postcode"),
+            postalCode=self.parse_postcode(record.get("Postcode")),
             telephone=record.get("TelephoneNum"),
             alternateName=[],
             email=None,

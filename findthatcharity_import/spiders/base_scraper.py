@@ -86,7 +86,7 @@ class BaseScraper(scrapy.Spider):
         # we assume the last item is a postcode
         if get_postcode:
             if len(address) > 1:
-                postcode = address[-1]
+                postcode = self.parse_postcode(address[-1])
                 address = address[0:-1]
             else:
                 return address, None
@@ -134,3 +134,38 @@ class BaseScraper(scrapy.Spider):
 
         if validators.url("http://%s" % url):
             return "http://%s" % url
+
+    def parse_postcode(self, postcode):
+        """
+        standardises a postcode into the correct format
+        """
+
+        if postcode is None:
+            return None
+
+        # check for blank/empty
+        # put in all caps
+        postcode = postcode.strip().upper()
+        if postcode == '':
+            return None
+
+        # replace any non alphanumeric characters
+        postcode = re.sub('[^0-9a-zA-Z]+', '', postcode)
+
+        if postcode == '':
+            return None
+
+        # check for nonstandard codes
+        if len(postcode) > 7:
+            return postcode
+
+        first_part = postcode[:-3].strip()
+        last_part = postcode[-3:].strip()
+
+        # check for incorrect characters
+        first_part = list(first_part)
+        last_part = list(last_part)
+        if len(last_part) > 0 and last_part[0] == "O":
+            last_part[0] = "0"
+
+        return "%s %s" % ("".join(first_part), "".join(last_part))

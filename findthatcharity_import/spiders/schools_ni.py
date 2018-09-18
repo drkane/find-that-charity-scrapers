@@ -103,7 +103,7 @@ class SchoolsNISpider(BaseScraper):
             "addressLocality": record.get("Town"),
             "addressRegion": record.get("Count"),
             "addressCountry": "Northern Ireland",
-            "postalCode": record.get("Postcode"),
+            "postalCode": self.parse_postcode(record.get("Postcode")),
             "telephone": record.get("Telephone"),
             "alternateName": [],
             "email": record.get("Email"),

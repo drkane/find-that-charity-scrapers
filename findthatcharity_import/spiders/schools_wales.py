@@ -105,7 +105,7 @@ class SchoolsWalesSpider(BaseScraper):
             "addressLocality": record.get("Address 2"),
             "addressRegion": address4,
             "addressCountry": "Wales",
-            "postalCode": record.get("Postcode"),
+            "postalCode": self.parse_postcode(record.get("Postcode")),
             "telephone": record.get("Phone Number"),
             "alternateName": [],
             "email": None,

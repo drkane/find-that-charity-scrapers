@@ -125,7 +125,7 @@ class SchoolsScotlandSpider(BaseScraper):
                 addressLocality=record.get("address_2"),
                 addressRegion=record.get("address_3"),
                 addressCountry="Scotland",
-                postalCode=record.get("post_code"),
+                postalCode=self.parse_postcode(record.get("post_code")),
                 telephone=record.get("phone"),
                 alternateName=[],
                 email=record.get("e_mail"),
