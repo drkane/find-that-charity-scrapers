@@ -82,7 +82,7 @@ class CCNISpider(BaseScraper):
         return Organisation(**{
             "id": self.get_org_id(record),
             "name": record.get("Charity name").replace("`", "'"),
-            "charityNumber": "NI{}".format(record.get(self.id_field)),
+            "charityNumber": "NIC{}".format(record.get(self.id_field)),
             "companyNumber": coyno,
             "streetAddress": address[0],
             "addressLocality": address[1],
