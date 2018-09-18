@@ -37,7 +37,11 @@ class Organisation(scrapy.Item):
     # Add `Classification` fields?
 
     def __repr__(self):
-        return '<Org {} "{}">'.format(self.get("id"), self.get("name"))
+        return '<Org {} "{}"{}>'.format(
+            self.get("id"), 
+            self.get("name"),
+            " INACTIVE" if not self.get("active") else ""
+        )
 
 AREA_TYPES = {
     "E00": "OA",
