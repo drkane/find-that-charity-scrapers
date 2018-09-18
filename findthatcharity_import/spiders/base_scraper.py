@@ -11,6 +11,7 @@ DEFAULT_DATE_FORMAT = "%Y-%m-%d"
 class BaseScraper(scrapy.Spider):
 
     date_format = DEFAULT_DATE_FORMAT
+    date_fields = []
     encoding = "utf8"
 
     def parse_csv(self, response):
@@ -33,7 +34,7 @@ class BaseScraper(scrapy.Spider):
     def clean_fields(self, record):
         for f in record.keys():
             # clean blank values
-            if record[f].strip() == "":
+            if record[f] == "":
                 record[f] = None
 
             # clean date fields
