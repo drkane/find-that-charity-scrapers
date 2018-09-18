@@ -10,12 +10,12 @@ from ..items import Organisation
 
 
 class GovernmentOrganisationSpider(BaseScraper):
-    name = 'gov'
+    name = 'gor'
     allowed_domains = ['register.gov.uk']
     start_urls = [
         "https://government-organisation.register.gov.uk/records.csv?page-size=5000"
     ]
-    org_id_prefix = "GB-GOV"
+    org_id_prefix = "GB-GOR"
     id_field = "key"
     date_fields = ["entry-timestamp", "start-date", "end-date"]
     date_format = {
@@ -26,7 +26,7 @@ class GovernmentOrganisationSpider(BaseScraper):
     source = {
         "title": "Government organisations on GOV.UK register",
         "description": "Government departments, agencies or teams that are on the GOV.UK website",
-        "identifier": "lae",
+        "identifier": "gor",
         "license": "http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
         "license_name": "Open Government Licence v3.0",
         "issued": "",
