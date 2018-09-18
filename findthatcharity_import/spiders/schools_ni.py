@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 import datetime
-import io
-import csv
 
 import scrapy
 
@@ -69,6 +67,7 @@ class SchoolsNISpider(BaseScraper):
                 post_params[p] = param if param else ''
             except:
                 pass
+        post_params["ctl00$ContentPlaceHolder1$instType"] = "-2"
         post_params["ctl00$ContentPlaceHolder1$lvSchools$exportType"] = "2"
         post_params["__EVENTTARGET"] = "ctl00$ContentPlaceHolder1$lvSchools$btnDoExport"
         post_params["__EVENTARGUMENT"] = ""
