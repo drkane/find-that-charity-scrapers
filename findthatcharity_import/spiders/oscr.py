@@ -11,9 +11,10 @@ from ..items import Organisation
 
 class OSCRSpider(BaseScraper):
     name = 'oscr'
-    allowed_domains = ['oscr.org.uk']
+    allowed_domains = ['oscr.org.uk', 'githubusercontent.com']
     start_urls = [
-        "https://www.oscr.org.uk/about-charities/search-the-register/charity-register-download"
+        "https://www.oscr.org.uk/about-charities/search-the-register/charity-register-download",
+        "https://raw.githubusercontent.com/drkane/charity-lookups/master/dual-registered-uk-charities.csv",
     ]
     org_id_prefix = "GB-SC"
     id_field = "Charity Number"
@@ -44,6 +45,19 @@ class OSCRSpider(BaseScraper):
     }
 
     def start_requests(self):
+        return [scrapy.Request(self.start_urls[1], callback=self.download_dual)]
+
+    def download_dual(self, response):
+
+        self.dual_registered = {}
+        with io.StringIO(response.text) as a:
+            csvreader = csv.DictReader(a)
+            for row in csvreader:
+                regno = row["Scottish Charity Number"].strip()
+                if regno not in self.dual_registered:
+                    self.dual_registered[regno] = []
+                self.dual_registered[regno].append(row["E&W Charity Number"].strip())
+
         return [scrapy.Request(self.start_urls[0], callback=self.fetch_zip)]
 
     def fetch_zip(self, response, agreeterms=True):
@@ -101,19 +115,22 @@ class OSCRSpider(BaseScraper):
 
         record = self.clean_fields(record)
 
-        address, postcode = self.split_address(record.get("Principal Office/Trustees Address", ""), get_postcode=False)
+        address, _ = self.split_address(record.get("Principal Office/Trustees Address", ""), get_postcode=False)
 
         org_types = [
             "Registered Charity",
             "Registered Charity (Scotland)",
         ]
-        org_ids = [self.get_org_id(record)]
         if record.get("Regulatory Type") != "Standard":
             org_types.append(record.get("Regulatory Type"))
         if record.get("Designated religious body") == "Yes":
             org_types.append("Designated religious body")
-        if record.get("Consitutional Form") != "Other":
-            org_types.append(record.get("Consitutional Form"))
+        if record.get("Constitutional Form") != "Other":
+            org_types.append(record.get("Constitutional Form"))
+
+        org_ids = [self.get_org_id(record)]
+        for i in self.dual_registered.get(record.get(self.id_field), []):
+            org_ids.append("GB-CHC-{}".format(i))
 
         return Organisation(**{
             "id": self.get_org_id(record),
