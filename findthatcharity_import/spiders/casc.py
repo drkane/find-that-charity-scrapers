@@ -8,7 +8,7 @@ from .base_scraper import BaseScraper
 from ..items import Organisation
 
 class CascSpider(BaseScraper):
-    name = 'cascs'
+    name = 'casc'
     allowed_domains = ['gov.uk']
     start_urls = ["https://www.gov.uk/government/publications/community-amateur-sports-clubs-casc-registered-with-hmrc--2"]
     org_id_prefix = "GB-CASC"

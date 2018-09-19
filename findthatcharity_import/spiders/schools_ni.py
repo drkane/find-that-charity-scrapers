@@ -7,7 +7,7 @@ from .base_scraper import BaseScraper
 from ..items import Organisation
 
 class SchoolsNISpider(BaseScraper):
-    name = 'schoolsni'
+    name = 'schools_ni'
     allowed_domains = ['education-ni.gov.uk']
     start_urls = ["http://apps.education-ni.gov.uk/appinstitutes/default.aspx"]
     skip_rows = 5

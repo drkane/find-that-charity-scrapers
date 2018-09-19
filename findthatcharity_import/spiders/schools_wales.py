@@ -34,7 +34,7 @@ WAL_LAS = {
 }
 
 class SchoolsWalesSpider(BaseScraper):
-    name = 'schoolswales'
+    name = 'schools_wales'
     allowed_domains = ['gov.wales']
     start_urls = ["https://gov.wales/statistics-and-research/address-list-of-schools/?lang=en"]
     org_id_prefix = "GB-WALEDU"

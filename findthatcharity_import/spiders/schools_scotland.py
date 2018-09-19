@@ -45,7 +45,7 @@ SCOT_LAS = {
 }
 
 class SchoolsScotlandSpider(BaseScraper):
-    name = 'schoolsscotland'
+    name = 'schools_scotland'
     allowed_domains = ['gov.scot']
     start_urls = [
         "http://www.gov.scot/Topics/Statistics/Browse/School-Education/Datasets/contactdetails"]
