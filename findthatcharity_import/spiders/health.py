@@ -100,7 +100,7 @@ class NHSODSSpider(BaseScraper):
             scrapy.Request(f["url"], callback=self.process_zip, meta={"org_type": f["org_type"]})
             for f in self.files
         ]
-    
+
     def process_zip(self, response):
         with zipfile.ZipFile(io.BytesIO(response.body)) as z:
             for f in z.infolist():
@@ -111,7 +111,6 @@ class NHSODSSpider(BaseScraper):
                     reader = csv.DictReader(io.TextIOWrapper(csvfile), fieldnames=self.fields)
                     rowcount = 0
                     for row in reader:
-                                    
                         if self.settings.getbool("DEBUG_ENABLED") and rowcount > self.settings.getint("DEBUG_ROWS", 100):
                             break
 

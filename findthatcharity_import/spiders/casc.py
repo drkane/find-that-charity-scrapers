@@ -34,7 +34,7 @@ class CascSpider(BaseScraper):
         self.rowcount = 0
         for list_page in response.css(".attachment-details h2"):
             yield response.follow(list_page.css("a::attr(href)").extract_first(), callback=self.parse)
-            
+
     def parse(self, response):
         """
         Parse an individual page on the HMRC website
@@ -90,18 +90,16 @@ class CascSpider(BaseScraper):
         CASCs don't come with a ID, so we're creating a dummy one.
 
         This is defined by:
-        
+
         1. Put together the name of the club + the postcode (or the string None if there is no postcode)
         2. Take the MD5 hash of the utf8 representation of this string
         3. Use the first 8 characters of the hexdigest of this hash
         """
-        
+
         def hash_id(w):
             return hashlib.md5(w.encode("utf8")).hexdigest()[0:8]
 
         return "-".join([
-            self.org_id_prefix, 
+            self.org_id_prefix,
             hash_id(str(record[0])+str(record[2]))
         ])
-        
-    

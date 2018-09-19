@@ -15,7 +15,7 @@ class CompaniesSpider(BaseScraper):
     name = 'companies'
     allowed_domains = ['companieshouse.gov.uk']
     start_urls = ["http://download.companieshouse.gov.uk/en_output.html"]
-    zip_regex = re.compile("BasicCompanyDataAsOneFile.*\.zip")
+    zip_regex = re.compile(r"BasicCompanyDataAsOneFile.*\.zip")
     org_id_prefix = "GB-COH"
     clg_types = [
         "PRI/LBG/NSC (Private, Limited by guarantee, no share capital, use of 'Limited' exemption)",
@@ -51,7 +51,7 @@ class CompaniesSpider(BaseScraper):
     ]
     id_field = "CompanyNumber"
     date_fields = [
-        "DissolutionDate", "IncorporationDate", "Accounts_NextDueDate", "Accounts_LastMadeUpDate", 
+        "DissolutionDate", "IncorporationDate", "Accounts_NextDueDate", "Accounts_LastMadeUpDate",
         "Returns_NextDueDate", "Returns_LastMadeUpDate", "ConfStmtNextDueDate", "ConfStmtLastMadeUpDate"
     ]
     date_format = "%d/%m/%Y"
@@ -82,10 +82,10 @@ class CompaniesSpider(BaseScraper):
     def start_requests(self):
 
         return [scrapy.Request(self.start_urls[0], callback=self.fetch_zip)]
-        
+
     def fetch_zip(self, response):
         link = response.css("a::attr(href)").re_first(self.zip_regex)
-        
+
         self.source["distribution"][0]["accessURL"] = self.start_urls[0]
         self.source["distribution"][0]["downloadURL"] = link
         self.source["modified"] = datetime.datetime.now().isoformat()
@@ -93,7 +93,6 @@ class CompaniesSpider(BaseScraper):
         return [scrapy.Request(response.urljoin(link), callback=self.process_zip)]
 
     def process_zip(self, response):
-        csvs = []
         with zipfile.ZipFile(io.BytesIO(response.body)) as z:
             for f in z.infolist():
                 self.logger.info("Opening: {}".format(f.filename))
@@ -101,7 +100,6 @@ class CompaniesSpider(BaseScraper):
                     reader = csv.DictReader(io.TextIOWrapper(csvfile, encoding='latin1'))
                     rowcount = 0
                     for row in tqdm(reader):
-                                    
                         if self.settings.getbool("DEBUG_ENABLED") and rowcount >= self.settings.getint("DEBUG_ROWS", 100):
                             break
 
@@ -112,7 +110,6 @@ class CompaniesSpider(BaseScraper):
                         rowcount += 1
 
                         yield self.parse_row(row)
-                            
 
     def parse_row(self, row):
         row = {k.strip().replace(".", "_"): row[k] for k in row}
@@ -127,11 +124,11 @@ class CompaniesSpider(BaseScraper):
         for k in row:
             if k.startswith("PreviousName_"):
                 pn = k.split("_")
-                if row[k] and row[k]!="":
+                if row[k] and row[k] != "":
                     if pn[1] not in previous_names:
                         previous_names[pn[1]] = {}
 
-                    if pn[2]=="CONDATE":
+                    if pn[2] == "CONDATE":
                         previous_names[pn[1]][pn[2]] = datetime.datetime.strptime(
                             row[k], "%d/%m/%Y").date()
                         previous_names[pn[1]]["nameno"] = pn[1]
@@ -147,7 +144,7 @@ class CompaniesSpider(BaseScraper):
                     })
             else:
                 record[k] = row[k]
-        
+
         record["previous_names"] = list(previous_names.values())
         record["sic_codes"] = sic_codes
 

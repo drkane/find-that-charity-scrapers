@@ -70,7 +70,7 @@ class CCEWSpider(BaseScraper):
             "fyend", # 	    char(4) 	    Financial year end
             "welsh", # 	    char(1) 	    requires correspondence in both Welsh & English (T/F)
             "incomedate", # datetime 	    date for latest gross income (blank if income is an estimate)
-            "income", # 	integer 	    
+            "income", # 	integer
             "grouptype", # 	varchar(4) 	    may be blank
             "email", # 	    varchar(255) 	email address
             "web", # 	    varchar(255) 	website address
@@ -113,7 +113,7 @@ class CCEWSpider(BaseScraper):
             csvreader = csv.DictReader(a)
             for row in csvreader:
                 self.aooref[(row["aootype"], row["aookey"])] = row
-        
+
         return [scrapy.Request(self.start_urls[0], callback=self.fetch_zip)]
 
     def fetch_zip(self, response):
@@ -157,8 +157,8 @@ class CCEWSpider(BaseScraper):
                         f: [] for f in self.ccew_files.keys()
                     }
                 if (filename in ["extract_main_charity", "extract_charity"] and row.get("subno", '0') == '0'):
-                    for k in row:
-                        self.charities[row["regno"]][k] = row[k]
+                    for field in row:
+                        self.charities[row["regno"]][field] = row[field]
                 else:
                     self.charities[row["regno"]][filename].append(row)
 
@@ -181,7 +181,7 @@ class CCEWSpider(BaseScraper):
             if coyno:
                 org_types.append("Registered Company")
                 org_ids.append("GB-COH-{}".format(coyno))
-            
+
             # check for CIOs
             if record.get("gd", "").startswith("CIO - "):
                 org_types.append("Charitable Incorporated Organisation")
@@ -256,7 +256,7 @@ class CCEWSpider(BaseScraper):
     def get_objects(self, record):
         objects = []
         for o in record.get("extract_objects"):
-            if o.get("subno")=='0':
+            if o.get("subno") == '0':
                 objects.append(re.sub("[0-9]{4}$", "", o['object']))
         return ''.join(objects)
 

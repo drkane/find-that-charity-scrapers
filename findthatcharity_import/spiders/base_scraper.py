@@ -64,7 +64,7 @@ class BaseScraper(scrapy.Spider):
     def parse_company_number(self, coyno):
         if not coyno:
             return None
-        
+
         coyno = coyno.strip()
         if coyno == "":
             return None
@@ -84,7 +84,7 @@ class BaseScraper(scrapy.Spider):
         address = [a.strip() for a in address_str.split(separator.strip())]
         postcode = None
 
-        # if our list is greater than one item long then 
+        # if our list is greater than one item long then
         # we assume the last item is a postcode
         if get_postcode:
             if len(address) > 1:
@@ -117,11 +117,11 @@ class BaseScraper(scrapy.Spider):
             return "http://%s" % url
 
         if url in ["n.a", 'non.e', '.0', '-.-', '.none', '.nil', 'N/A', 'TBC',
-                'under construction', '.n/a', '0.0', '.P', b'', 'no.website']:
+                   'under construction', '.n/a', '0.0', '.P', b'', 'no.website']:
             return None
 
         for i in ['http;//', 'http//', 'http.//', 'http:\\\\',
-                'http://http://', 'www://', 'www.http://']:
+                  'http://http://', 'www://', 'www.http://']:
             url = url.replace(i, 'http://')
         url = url.replace('http:/www', 'http://www')
 
@@ -167,11 +167,11 @@ class BaseScraper(scrapy.Spider):
         # check for incorrect characters
         first_part = list(first_part)
         last_part = list(last_part)
-        if len(last_part) > 0 and last_part[0] == "O":
+        if last_part and last_part[0] == "O":
             last_part[0] = "0"
 
         return "%s %s" % ("".join(first_part), "".join(last_part))
-        
+
     def title_exceptions(self, word, **kwargs):
 
         word_test = word.strip("(){}<>.")
@@ -182,9 +182,9 @@ class BaseScraper(scrapy.Spider):
 
         # uppercase words
         if word_test.upper() in ['UK', 'FM', 'YMCA', 'PTA', 'PTFA',
-                                'NHS', 'CIO', 'U3A', 'RAF', 'PFA', 'ADHD',
-                                'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI',
-                                'AFC', 'CE', 'CIC'
+                                 'NHS', 'CIO', 'U3A', 'RAF', 'PFA', 'ADHD',
+                                 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI',
+                                 'AFC', 'CE', 'CIC'
                                 ]:
             return word.upper()
 
@@ -200,7 +200,7 @@ class BaseScraper(scrapy.Spider):
         # words with dots/etc in the middle
         for s in [".", "'", ")"]:
             dots = word.split(s)
-            if(len(dots) > 1):
+            if len(dots) > 1:
                 # check for possesive apostrophes
                 if s == "'" and dots[-1].upper() == "S":
                     return s.join([titlecase.titlecase(i, self.title_exceptions) for i in dots[:-1]] + [dots[-1].lower()])
