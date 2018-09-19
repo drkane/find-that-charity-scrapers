@@ -7,6 +7,8 @@ import scrapy
 import validators
 import titlecase
 
+from ..items import Source
+
 DEFAULT_DATE_FORMAT = "%Y-%m-%d"
 
 class BaseScraper(scrapy.Spider):
@@ -16,6 +18,9 @@ class BaseScraper(scrapy.Spider):
     encoding = "utf8"
 
     def parse_csv(self, response):
+
+        if hasattr(self, "source"):
+            yield Source(**self.source)
 
         try:
             csv_text = response.text

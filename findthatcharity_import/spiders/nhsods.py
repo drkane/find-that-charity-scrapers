@@ -7,7 +7,7 @@ import zipfile
 import scrapy
 
 from .base_scraper import BaseScraper
-from ..items import Organisation
+from ..items import Organisation, Source
 
 class NHSODSSpider(BaseScraper):
     name = 'nhsods'
@@ -102,6 +102,7 @@ class NHSODSSpider(BaseScraper):
         ]
 
     def process_zip(self, response):
+        yield Source(**self.source)
         with zipfile.ZipFile(io.BytesIO(response.body)) as z:
             for f in z.infolist():
                 if not f.filename.endswith(".csv"):
@@ -167,5 +168,5 @@ class NHSODSSpider(BaseScraper):
             "active": record.get("Close Date") is None,
             "parent": record.get("Parent Organisation Code"),
             "orgIDs": [self.get_org_id(record)],
-            "sources": [self.source],
+            "sources": [self.source["identifier"]],
         })

@@ -5,7 +5,7 @@ import re
 import scrapy
 
 from .base_scraper import BaseScraper
-from ..items import Organisation, AREA_TYPES
+from ..items import Organisation, Source, AREA_TYPES
 
 REGION_CONVERT = {
     "A": "E12000001",

@@ -2,12 +2,11 @@
 import datetime
 import io
 
-import humanize
 import scrapy
 from openpyxl import load_workbook
 
 from .base_scraper import BaseScraper
-from ..items import Organisation, AREA_TYPES
+from ..items import Organisation, Source, AREA_TYPES
 
 SCOT_LAS = {
     "Aberdeen City": "S12000033",
@@ -85,11 +84,12 @@ class SchoolsScotlandSpider(BaseScraper):
         return [scrapy.Request(response.urljoin(link), callback=self.parse)]
 
     def parse(self, response):
-        self.logger.info("File size: {}".format(
-            humanize.naturalsize(len(response.body))))
         wb = load_workbook(io.BytesIO(response.body), read_only=True)
-        self.source["issued"] = wb.properties.modified.isoformat()[0:10]
         latest_sheet = wb[sorted([s for s in wb.sheetnames if s.startswith("Open at")])[-1]]
+
+        self.source["issued"] = wb.properties.modified.isoformat()[0:10]
+        yield Source(**self.source)
+
         self.logger.info("Latest sheet: {}".format(latest_sheet.title))
         headers = {}
         seen_blank_row = False

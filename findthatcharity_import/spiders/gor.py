@@ -4,7 +4,7 @@ import datetime
 import scrapy
 
 from .base_scraper import BaseScraper
-from ..items import Organisation
+from ..items import Organisation, Source
 
 
 class GovernmentOrganisationSpider(BaseScraper):
@@ -82,5 +82,5 @@ class GovernmentOrganisationSpider(BaseScraper):
             "active": record.get("end-date") is None,
             "parent": None,
             "orgIDs": org_ids,
-            "sources": [self.source],
+            "sources": [self.source["identifier"]],
         })

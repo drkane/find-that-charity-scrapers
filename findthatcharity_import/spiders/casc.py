@@ -5,7 +5,7 @@ import hashlib
 import scrapy
 
 from .base_scraper import BaseScraper
-from ..items import Organisation
+from ..items import Organisation, Source
 
 class CascSpider(BaseScraper):
     name = 'casc'
@@ -47,6 +47,7 @@ class CascSpider(BaseScraper):
                 response.css("h1.gem-c-title__text::text").extract_first().strip()
             )
         }]
+        yield Source(**self.source)
 
         for table in response.css(".govspeak > table"):
             for row in table.css("tbody > tr"):
@@ -82,7 +83,7 @@ class CascSpider(BaseScraper):
                     "active": True,
                     "parent": None,
                     "orgIDs": [self.get_org_id(cells)],
-                    "sources": [self.source],
+                    "sources": [self.source["identifier"]],
                 })
 
     def get_org_id(self, record):

@@ -8,7 +8,7 @@ import re
 import scrapy
 
 from .base_scraper import BaseScraper
-from ..items import Organisation, AREA_TYPES
+from ..items import Organisation, Source, AREA_TYPES
 
 class CCEWSpider(BaseScraper):
     name = 'ccew'
@@ -163,6 +163,8 @@ class CCEWSpider(BaseScraper):
                     self.charities[row["regno"]][filename].append(row)
 
     def process_charities(self):
+        yield Source(**self.source)
+        
         for regno, record in self.charities.items():
 
             # helps with debugging - shouldn't normally be empty
@@ -217,7 +219,7 @@ class CCEWSpider(BaseScraper):
                 "active": record.get("orgtype") == "R",
                 "parent": None,
                 "orgIDs": org_ids,
-                "sources": [self.source],
+                "sources": [self.source["identifier"]],
             })
 
     def get_locations(self, record):

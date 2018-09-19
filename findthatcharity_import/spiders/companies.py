@@ -9,7 +9,7 @@ import scrapy
 from tqdm import tqdm
 
 from .base_scraper import BaseScraper
-from ..items import Organisation
+from ..items import Organisation, Source
 
 class CompaniesSpider(BaseScraper):
     name = 'companies'
@@ -93,6 +93,7 @@ class CompaniesSpider(BaseScraper):
         return [scrapy.Request(response.urljoin(link), callback=self.process_zip)]
 
     def process_zip(self, response):
+        yield Source(**self.source)
         with zipfile.ZipFile(io.BytesIO(response.body)) as z:
             for f in z.infolist():
                 self.logger.info("Opening: {}".format(f.filename))
@@ -182,5 +183,5 @@ class CompaniesSpider(BaseScraper):
             "active": (record.get("CompanyStatus") not in ['Dissolved', 'Inactive', 'Converted / Closed'] and not record.get("DissolutionDate")),
             "parent": None,
             "orgIDs": [self.get_org_id(record)],
-            "sources": [self.source],
+            "sources": [self.source["identifier"]],
         })

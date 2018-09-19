@@ -6,7 +6,7 @@ import csv
 import scrapy
 
 from .base_scraper import BaseScraper
-from ..items import Organisation
+from ..items import Organisation, Source
 
 class CCNISpider(BaseScraper):
     name = 'ccni'
@@ -103,7 +103,7 @@ class CCNISpider(BaseScraper):
             "active": record.get("Status") != "Removed",
             "parent": None,
             "orgIDs": org_ids,
-            "sources": [self.source],
+            "sources": [self.source["identifier"]],
         })
 
     def parse_company_number(self, coyno):

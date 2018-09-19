@@ -6,7 +6,7 @@ import csv
 import scrapy
 
 from .base_scraper import BaseScraper
-from ..items import Organisation, AREA_TYPES
+from ..items import Organisation, Source, AREA_TYPES
 
 
 class LocalAuthorityEnglandSpider(BaseScraper):
@@ -95,7 +95,7 @@ class LocalAuthorityEnglandSpider(BaseScraper):
             "active": record.get("end-date") is None,
             "parent": None,
             "orgIDs": org_ids,
-            "sources": [self.source],
+            "sources": [self.source["identifier"]],
         })
 
 LA_TYPES = {

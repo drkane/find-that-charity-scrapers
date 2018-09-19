@@ -6,7 +6,7 @@ from pyexcel_ods3 import get_data
 import scrapy
 
 from .base_scraper import BaseScraper
-from ..items import Organisation, AREA_TYPES
+from ..items import Organisation, Source, AREA_TYPES
 
 WAL_LAS = {
     "Blaenau Gwent": "W06000019",
@@ -73,6 +73,7 @@ class SchoolsWalesSpider(BaseScraper):
         return [scrapy.Request(response.urljoin(link), callback=self.parse)]
 
     def parse(self, response):
+        yield Source(**self.source)
         wb = get_data(io.BytesIO(response.body))
         for sheet in ['Maintained', 'Independent', 'PRU']:
             headers = wb[sheet][0]
@@ -120,7 +121,7 @@ class SchoolsWalesSpider(BaseScraper):
             "active": True,
             "parent": None,
             "orgIDs": [self.get_org_id(record)],
-            "sources": [self.source],
+            "sources": [self.source["identifier"]],
         })
 
     def get_org_types(self, record):

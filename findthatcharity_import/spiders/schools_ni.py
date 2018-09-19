@@ -4,7 +4,7 @@ import datetime
 import scrapy
 
 from .base_scraper import BaseScraper
-from ..items import Organisation
+from ..items import Organisation, Source
 
 class SchoolsNISpider(BaseScraper):
     name = 'schools_ni'
@@ -122,5 +122,5 @@ class SchoolsNISpider(BaseScraper):
             "active": record.get("Status") == "Open",
             "parent": None,
             "orgIDs": [self.get_org_id(record)],
-            "sources": [self.source],
+            "sources": [self.source["identifier"]],
         })

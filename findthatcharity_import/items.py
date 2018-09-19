@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-import scrapy
+import math
 
+import scrapy
 
 class Organisation(scrapy.Item):
     """
@@ -42,6 +43,51 @@ class Organisation(scrapy.Item):
             self.get("name"),
             " INACTIVE" if not self.get("active") else ""
         )
+
+    def to_elasticsearch(self, es_index, es_type):
+        es_item = dict(self)
+        es_item["_index"] = es_index
+        es_item["_type"] = es_type
+        es_item["_op_type"] = "index"
+        es_item["_id"] = es_item["id"]
+        del es_item["id"]
+
+        # get names
+        all_names = es_item.get("alternateName", []) + [es_item.get("name", [])]
+        words = set()
+        for n in all_names:
+            if n:
+                w = n.split()
+                words.update([" ".join(w[r:]) for r in range(len(w))])
+        es_item["complete_names"] = {
+            "input": list(words),
+            "weight": max(1, math.ceil(math.log1p((es_item.get("latestIncome", 0) or 0))))
+        }
+
+        return es_item 
+
+class Source(scrapy.Item):
+    """
+    Item representing a data source from the scrapers
+    """
+    title = scrapy.Field()
+    description = scrapy.Field()
+    identifier = scrapy.Field()
+    license = scrapy.Field()
+    license_name = scrapy.Field()
+    issued = scrapy.Field()
+    modified = scrapy.Field()
+    publisher = scrapy.Field()
+    distribution = scrapy.Field()
+    
+    def to_elasticsearch(self, es_index, es_type):
+        es_item = dict(self)
+        es_item["_index"] = es_index
+        es_item["_type"] = es_type
+        es_item["_op_type"] = "index"
+        es_item["_id"] = es_item["identifier"]
+        return es_item
+
 
 AREA_TYPES = {
     "E00": "OA",

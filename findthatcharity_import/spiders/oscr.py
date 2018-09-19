@@ -7,7 +7,7 @@ import zipfile
 import scrapy
 
 from .base_scraper import BaseScraper
-from ..items import Organisation
+from ..items import Organisation, Source
 
 class OSCRSpider(BaseScraper):
     name = 'oscr'
@@ -156,5 +156,5 @@ class OSCRSpider(BaseScraper):
             "active": record.get("Charity Status") != "Removed",
             "parent": record.get("Parent Charity Name"), # @TODO: More sophisticated getting of parent charities here
             "orgIDs": org_ids,
-            "sources": [self.source],
+            "sources": [self.source["identifier"]],
         })

@@ -6,7 +6,7 @@ import csv
 import scrapy
 
 from .base_scraper import BaseScraper
-from ..items import Organisation
+from ..items import Organisation, Source
 
 #@TODO: support multiple languages (ie Welsh)
 
@@ -89,5 +89,5 @@ class LocalAuthorityWalesSpider(BaseScraper):
             "active": record.get("end-date") is None,
             "parent": None,
             "orgIDs": org_ids,
-            "sources": [self.source],
+            "sources": [self.source["identifier"]],
         })

@@ -6,7 +6,7 @@ import csv
 import scrapy
 
 from .base_scraper import BaseScraper
-from ..items import Organisation
+from ..items import Organisation, Source
 from .lae import LA_TYPES
 
 class LocalAuthorityNorthernIrelandSpider(BaseScraper):
@@ -87,5 +87,5 @@ class LocalAuthorityNorthernIrelandSpider(BaseScraper):
             "active": record.get("end-date") is None,
             "parent": None,
             "orgIDs": org_ids,
-            "sources": [self.source],
+            "sources": [self.source["identifier"]],
         })

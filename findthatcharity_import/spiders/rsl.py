@@ -7,7 +7,7 @@ import scrapy
 from openpyxl import load_workbook
 
 from .base_scraper import BaseScraper
-from ..items import Organisation, AREA_TYPES
+from ..items import Organisation, Source, AREA_TYPES
 
 class RSLSpider(BaseScraper):
     """
@@ -72,8 +72,10 @@ class RSLSpider(BaseScraper):
 
     def parse(self, response):
         wb = load_workbook(io.BytesIO(response.body), read_only=True)
-        self.source["issued"] = wb.properties.modified.isoformat()[0:10]
         ws = wb['Organisation Advanced Find View']
+        
+        self.source["issued"] = wb.properties.modified.isoformat()[0:10]
+        yield Source(**self.source)
         
         headers = None
         for k, row in enumerate(ws.rows):
@@ -145,7 +147,7 @@ class RSLSpider(BaseScraper):
             "active": True,
             "parent": None,
             "orgIDs": org_ids,
-            "sources": [self.source],
+            "sources": [self.source["identifier"]],
         })
 
 
