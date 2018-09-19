@@ -228,6 +228,10 @@ class BaseScraper(scrapy.Spider):
 
         name = name.strip()
 
+        # if name is one character or less then return it
+        if len(name)<=1:
+            return name
+
         # if it contains any lowercase letters then return as is
         for c in name:
             if c.islower():

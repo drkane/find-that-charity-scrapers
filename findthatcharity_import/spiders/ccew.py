@@ -128,10 +128,11 @@ class CCEWSpider(BaseScraper):
         self.charities = {}
         with zipfile.ZipFile(io.BytesIO(response.body)) as z:
             for f in z.infolist():
-                self.logger.info("Opening: {}".format(f.filename))
                 filename = f.filename.replace(".bcp", "")
                 if filename not in self.ccew_files.keys():
+                    self.logger.debug("Skipping: {}".format(f.filename))
                     continue
+                self.logger.info("Opening: {}".format(f.filename))
                 with z.open(f) as csvfile:
                     self.process_csv(
                         self.convert_bcp(csvfile.read().decode("latin1")),
@@ -145,7 +146,7 @@ class CCEWSpider(BaseScraper):
         self.date_fields = [f for f in fields if f.endswith("date")]
 
         with io.StringIO(csv_text) as a:
-            csvreader = csv.DictReader(a, fieldnames=fields)
+            csvreader = csv.DictReader(a, fieldnames=fields, escapechar="\\")
             for k, row in enumerate(csvreader):
                 if self.settings.getbool("DEBUG_ENABLED") and k > 100: #self.settings.getint("DEBUG_ROWS", 100):
                     break
@@ -185,7 +186,7 @@ class CCEWSpider(BaseScraper):
                 org_ids.append("GB-COH-{}".format(coyno))
 
             # check for CIOs
-            if record.get("gd", "").startswith("CIO - "):
+            if record.get("gd") and record["gd"].startswith("CIO - "):
                 org_types.append("Charitable Incorporated Organisation")
                 if record["gd"].lower().startswith("cio - association"):
                     org_types.append("Charitable Incorporated Organisation - Association")
@@ -228,6 +229,8 @@ class CCEWSpider(BaseScraper):
         for l in record.get("extract_charity_aoo", []):
             aookey = (l["aootype"], l["aookey"])
             aoo = self.aooref.get(aookey)
+            if not aoo:
+                continue
             if aoo.get("GSS", "") != "":
                 locations.append({
                     "id": aoo["GSS"],
@@ -258,7 +261,7 @@ class CCEWSpider(BaseScraper):
     def get_objects(self, record):
         objects = []
         for o in record.get("extract_objects"):
-            if o.get("subno") == '0':
+            if o.get("subno") == '0' and isinstance(o['object'], str):
                 objects.append(re.sub("[0-9]{4}$", "", o['object']))
         return ''.join(objects)
 
@@ -270,5 +273,6 @@ class CCEWSpider(BaseScraper):
         bcpdata = bcpdata.replace(quote, escapechar + quote)
         bcpdata = bcpdata.replace(delimiter, quote + newdelimiter + quote)
         bcpdata = bcpdata.replace(lineterminator, quote + newline + quote)
+        bcpdata = bcpdata.replace('\0', '') # remove null characters
         bcpdata = quote + bcpdata + quote
         return bcpdata

@@ -134,7 +134,7 @@ class RSLSpider(BaseScraper):
             "addressCountry": "England",
             "postalCode": None,
             "telephone": None,
-            "alternateName": None,
+            "alternateName": [],
             "email": None,
             "description": None,
             "organisationType": org_types,
