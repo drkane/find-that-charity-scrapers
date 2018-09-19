@@ -58,7 +58,7 @@ class CascSpider(BaseScraper):
 
                 address = dict(enumerate([v.strip() for v in cells[1].split(",", maxsplit=2)]))
 
-                yield dict(Organisation(**{
+                yield Organisation(**{
                     "id": self.get_org_id(cells),
                     "name": cells[0],
                     "charityNumber": None,
@@ -83,7 +83,7 @@ class CascSpider(BaseScraper):
                     "parent": None,
                     "orgIDs": [self.get_org_id(cells)],
                     "sources": [self.source],
-                }))
+                })
 
     def get_org_id(self, record):
         """

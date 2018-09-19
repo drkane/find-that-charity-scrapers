@@ -161,7 +161,7 @@ class CompaniesSpider(BaseScraper):
             record.get("CompanyCategory")
         ]
 
-        return dict(Organisation(**{
+        return Organisation(**{
             "id": self.get_org_id(record),
             "name": record.get("CompanyName"),
             "charityNumber": None,
@@ -186,4 +186,4 @@ class CompaniesSpider(BaseScraper):
             "parent": None,
             "orgIDs": [self.get_org_id(record)],
             "sources": [self.source],
-        }))
+        })

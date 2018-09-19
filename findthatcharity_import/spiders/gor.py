@@ -60,7 +60,7 @@ class GovernmentOrganisationSpider(BaseScraper):
         ]
         org_ids = [self.get_org_id(record)]
 
-        return dict(Organisation(**{
+        return Organisation(**{
             "id": self.get_org_id(record),
             "name": record.get("name"),
             "charityNumber": None,
@@ -85,4 +85,4 @@ class GovernmentOrganisationSpider(BaseScraper):
             "parent": None,
             "orgIDs": org_ids,
             "sources": [self.source],
-        }))
+        })
