@@ -53,18 +53,29 @@ class Organisation(scrapy.Item):
         del es_item["id"]
 
         # get names
-        all_names = es_item.get("alternateName", []) + [es_item.get("name", [])]
+        es_item["complete_names"] = {
+            "input": self.get_complete_names(es_item),
+            "weight": max(1, math.ceil(math.log1p((es_item.get("latestIncome", 0) or 0))))
+        }
+
+        return es_item
+
+    def to_mongodb(self):
+        md_item = dict(self)
+        md_item["_id"] = md_item["id"]
+        del md_item["id"]
+        return ('organisation', md_item)
+
+    def get_complete_names(self, item):
+
+        # get names
+        all_names = item.get("alternateName", []) + [item.get("name", [])]
         words = set()
         for n in all_names:
             if n:
                 w = n.split()
                 words.update([" ".join(w[r:]) for r in range(len(w))])
-        es_item["complete_names"] = {
-            "input": list(words),
-            "weight": max(1, math.ceil(math.log1p((es_item.get("latestIncome", 0) or 0))))
-        }
-
-        return es_item 
+        return list(words)
 
 class Source(scrapy.Item):
     """
@@ -87,6 +98,11 @@ class Source(scrapy.Item):
         es_item["_op_type"] = "index"
         es_item["_id"] = es_item["identifier"]
         return es_item
+
+    def to_mongodb(self):
+        md_item = dict(self)
+        md_item["_id"] = md_item["identifier"]
+        return ('source', md_item)
 
 
 AREA_TYPES = {

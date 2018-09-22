@@ -15,7 +15,10 @@ SPIDER_MODULES = ['findthatcharity_import.spiders']
 NEWSPIDER_MODULE = 'findthatcharity_import.spiders'
 
 DEBUG_ENABLED = False
-DEBUG_ROWS = 10
+DEBUG_ROWS = 500
+
+# CRITICAL, ERROR, WARNING, INFO, DEBUG
+LOG_LEVEL = 'INFO'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
@@ -68,7 +71,8 @@ ROBOTSTXT_OBEY = False
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    'findthatcharity_import.pipelines.ElasticSearchPipeline': 300,
+    # 'findthatcharity_import.pipelines.elasticsearch.ElasticSearchPipeline': 300,
+    'findthatcharity_import.pipelines.mongodb.MongoDBPipeline': 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -87,7 +91,7 @@ ITEM_PIPELINES = {
 # Enable and configure HTTP caching (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html#httpcache-middleware-settings
 HTTPCACHE_ENABLED = True
-HTTPCACHE_EXPIRATION_SECS = 60 * 60 * 24 # one day
+HTTPCACHE_EXPIRATION_SECS = 60 * 60 * 24 * 7 # one week
 HTTPCACHE_DIR = 'httpcache'
 HTTPCACHE_IGNORE_HTTP_CODES = []
 HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'

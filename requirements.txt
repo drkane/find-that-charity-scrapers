@@ -34,6 +34,7 @@ pyexcel-io==0.5.9.1
 pyexcel-ods3==0.5.2
 PyHamcrest==1.9.0
 pylint==2.1.1
+pymongo==3.7.1
 pyOpenSSL==18.0.0
 pypiwin32==223
 pywin32==223
