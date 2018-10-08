@@ -86,6 +86,9 @@ class BaseScraper(scrapy.Spider):
         Will produce an array of exactly `address_parts` length, with None
         used in values that aren't present
         """
+        if address_str is None:
+            return ([None for n in range(address_parts)], None)
+
         address = [a.strip() for a in address_str.split(separator.strip())]
         postcode = None
 
@@ -229,7 +232,7 @@ class BaseScraper(scrapy.Spider):
         name = name.strip()
 
         # if name is one character or less then return it
-        if len(name)<=1:
+        if len(name) <= 1:
             return name
 
         # if it contains any lowercase letters then return as is

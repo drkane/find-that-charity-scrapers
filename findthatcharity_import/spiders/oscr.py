@@ -14,13 +14,15 @@ class OSCRSpider(BaseScraper):
     allowed_domains = ['oscr.org.uk', 'githubusercontent.com']
     start_urls = [
         "https://www.oscr.org.uk/about-charities/search-the-register/charity-register-download",
+        "https://www.oscr.org.uk/about-charities/search-the-register/former-charities-download",
         "https://raw.githubusercontent.com/drkane/charity-lookups/master/dual-registered-uk-charities.csv",
     ]
     org_id_prefix = "GB-SC"
     id_field = "Charity Number"
-    date_fields = ["Registered Date", "Year End"]
+    date_fields = ["Registered Date", "Year End", "Ceased Date"]
     date_format = {
         "Registered Date": "%d/%m/%Y %H:%M",
+        "Ceased Date": "%d/%m/%Y %H:%M",
         "Year End": "%d/%m/%Y"
     }
     source = {
@@ -45,7 +47,7 @@ class OSCRSpider(BaseScraper):
     }
 
     def start_requests(self):
-        return [scrapy.Request(self.start_urls[1], callback=self.download_dual)]
+        return [scrapy.Request(self.start_urls[2], callback=self.download_dual)]
 
     def download_dual(self, response):
 
@@ -58,16 +60,20 @@ class OSCRSpider(BaseScraper):
                     self.dual_registered[regno] = []
                 self.dual_registered[regno].append(row["E&W Charity Number"].strip())
 
-        return [scrapy.Request(self.start_urls[0], callback=self.fetch_zip)]
+        return [
+            scrapy.Request(self.start_urls[0], callback=self.fetch_zip),
+            scrapy.Request(self.start_urls[1], callback=self.fetch_zip),
+        ]
 
     def fetch_zip(self, response, agreeterms=True):
-        TERMS_AND_CONDITIONS_TEXT = "ContentPlaceHolderDefault_WebsiteContent_ctl05_CharityRegDownload_10_lblTermsConditions"
         self.logger.info("Using url: %s" % response.url)
 
+        page_name = "CharityRegRemovedDownload_10" if "former-charities" in response.url else "CharityRegDownload_10"
+        TERMS_AND_CONDITIONS_TEXT = "ContentPlaceHolderDefault_WebsiteContent_ctl05_{}_lblTermsConditions".format(page_name)
         formdata = {
-            "ctl00$ctl00$ctl00$ContentPlaceHolderDefault$WebsiteContent$ctl05$CharityRegDownload_10$cbTermsConditions": "on",
-            "ctl00$ctl00$ctl00$ContentPlaceHolderDefault$WebsiteContent$ctl05$CharityRegDownload_10$uxTemp": "",
-            "ctl00$ctl00$ctl00$ContentPlaceHolderDefault$WebsiteContent$ctl05$CharityRegDownload_10$btnProceed": "Proceed"
+            "ctl00$ctl00$ctl00$ContentPlaceHolderDefault$WebsiteContent$ctl05${}$cbTermsConditions".format(page_name): "on",
+            "ctl00$ctl00$ctl00$ContentPlaceHolderDefault$WebsiteContent$ctl05${}$uxTemp".format(page_name): "",
+            "ctl00$ctl00$ctl00$ContentPlaceHolderDefault$WebsiteContent$ctl05${}$btnProceed".format(page_name): "Proceed"
         }
         for i in ["__EVENTTARGET", "__EVENTARGUMENT", "__VIEWSTATE", "__VIEWSTATEGENERATOR", "_TSM_HiddenField_"]:
             formdata[i] = response.css('[name="{}"]::attr(value)'.format(i)).extract_first()
@@ -75,7 +81,7 @@ class OSCRSpider(BaseScraper):
                 formdata[i] = ""
 
         # get the terms and conditions box
-        tandcs = "".join(["\r\n" if t=="" else t.strip() for t in response.css("#{} *::text".format(TERMS_AND_CONDITIONS_TEXT)).extract()])
+        tandcs = "".join(["\r\n" if t == "" else t.strip() for t in response.css("#{} *::text".format(TERMS_AND_CONDITIONS_TEXT)).extract()])
         if not agreeterms:
             self.logger.info("To continue accept the following terms and conditions")
             self.logger.info(tandcs)
@@ -90,14 +96,19 @@ class OSCRSpider(BaseScraper):
 
         self.logger.debug(formdata)
 
-        self.source["distribution"][0]["downloadURL"] = self.start_urls[0]
-        self.source["distribution"][0]["accessURL"] = self.start_urls[0]
+        self.source["distribution"].append({
+            "downloadURL": response.url,
+            "accessURL": response.url,
+            "title": "Office of Scottish Charity Regulator Charity Register Download{}".format(
+                " - Former charities" if "former-charities" in response.url else ""
+            )
+        })
         self.source["modified"] = datetime.datetime.now().isoformat()
 
-        return scrapy.FormRequest(url=response.url, 
-                                   method='POST', 
-                                   formdata=formdata, 
-                                   callback=self.process_zip)
+        return scrapy.FormRequest(url=response.url,
+                                  method='POST',
+                                  formdata=formdata,
+                                  callback=self.process_zip)
 
 
     def process_zip(self, response):
@@ -152,7 +163,7 @@ class OSCRSpider(BaseScraper):
             "latestIncome": int(record["Most recent year income"]) if record.get("Most recent year income") else None,
             "dateModified": datetime.datetime.now(),
             "dateRegistered": record.get("Registered Date"),
-            "dateRemoved": None,
+            "dateRemoved": record.get("Ceased Date"),
             "active": record.get("Charity Status") != "Removed",
             "parent": record.get("Parent Charity Name"), # @TODO: More sophisticated getting of parent charities here
             "orgIDs": org_ids,
