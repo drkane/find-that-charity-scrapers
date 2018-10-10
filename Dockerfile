@@ -18,7 +18,7 @@ RUN set -x \
 
 # install scrapyd
 ADD requirements.txt /
-RUN pip install -r requirements.txt
+RUN pip3 install -r requirements.txt
 
 # remove the stuff we dont need to keep around
 RUN apt-get remove -y \
@@ -32,7 +32,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 VOLUME /scrapyd
 
-RUN pip install --upgrade setuptools
+RUN pip3 install --upgrade setuptools
 
 ADD scrapyd.conf /etc/scrapyd/scrapyd.conf
 ADD nginx.conf /etc/nginx/sites-enabled/default
