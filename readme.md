@@ -107,7 +107,45 @@ The following settings are defined:
 
 ## Deploying with Scrapyd
 
-*To be completed*
+A dockerfile has been included ([source from here](https://github.com/cdrx/scrapyd-authenticated))
+which enables use as a dokku or other hosting service server.
+
+To deploy to Dokku use the following configuration:
+
+### 1. Set up dokku server
+
+SSH into server and run:
+
+```bash
+# create app
+dokku apps:create find-that-charity-scrapers
+
+# add permanent data storage
+dokku storage:mount find-that-charity-scrapers /var/lib/dokku/data/storage/find-that-charity-scrapers:/scrapyd
+
+# enable domain
+dokku domains:enable find-that-charity-scrapers
+dokku domains:add find-that-charity-scrapers scraper.findthatcharity.uk
+
+# elasticsearch
+# This assumes the elasticsearch instance has already been set up for find-that-charity
+dokku elasticsearch:link find-that-charity-es find-that-charity-scrapers
+
+# SSL
+sudo dokku plugin:install https://github.com/dokku/dokku-letsencrypt.git
+dokku config:set --no-restart find-that-charity-scrapers DOKKU_LETSENCRYPT_EMAIL=your@email.tld
+dokku letsencrypt find-that-charity-scrapers
+dokku letsencrypt:cron-job --add
+```
+
+### 2. Add as a git remote and push
+
+On local machine:
+
+```bash
+git remote add dokku dokku@SERVER_HOST:find-that-charity-scrapers
+git push dokku master
+```
 
 ## Other settings
 

@@ -2,3 +2,7 @@ env/
 .vscode/
 .scrapy/
 *.pyc
+dbs/
+logs/
+project.egg-info/
+build/
