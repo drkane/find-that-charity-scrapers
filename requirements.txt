@@ -1,6 +1,6 @@
 appdirs==1.4.3
 asn1crypto==0.24.0
-astroid==2.0.4
+# astroid==2.0.4
 attrs==18.2.0
 Automat==0.7.0
 black==18.6b4
