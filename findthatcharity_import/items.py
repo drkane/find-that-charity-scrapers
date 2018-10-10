@@ -91,6 +91,9 @@ class Source(scrapy.Item):
     publisher = scrapy.Field()
     distribution = scrapy.Field()
     
+    def __repr__(self):
+        return '<Source "{}">'.format(self.get("title"))
+
     def to_elasticsearch(self, es_index, es_type):
         es_item = dict(self)
         es_item["_index"] = es_index
