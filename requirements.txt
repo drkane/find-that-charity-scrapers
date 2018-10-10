@@ -1,9 +1,7 @@
 appdirs==1.4.3
 asn1crypto==0.24.0
-# astroid==2.0.4
 attrs==18.2.0
 Automat==0.7.0
-black==18.6b4
 cffi==1.11.5
 click==6.7
 colorama==0.3.9
@@ -33,7 +31,6 @@ pyexcel-ezodf==0.3.4
 pyexcel-io==0.5.9.1
 pyexcel-ods3==0.5.2
 PyHamcrest==1.9.0
-pylint==2.1.1
 pymongo==3.7.1
 pyOpenSSL==18.0.0
 pypiwin32==223
