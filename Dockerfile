@@ -34,6 +34,9 @@ VOLUME /scrapyd
 
 RUN pip3 install --upgrade setuptools
 
+RUN mkdir /app
+ADD scrapy.cfg /app/scrapy.cfg
+ADD findthatcharity_import /app/findthatcharity_import/
 ADD scrapyd.conf /etc/scrapyd/scrapyd.conf
 ADD nginx.conf /etc/nginx/sites-enabled/default
 ADD chaperone.conf /etc/chaperone.d/chaperone.conf
