@@ -4,7 +4,7 @@ import logging
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 
-class ElasticSearchPipeline(object):
+class ElasticSearchPipeline():
 
     def __init__(self, es_url, es_index, es_type, es_bulk_limit, stats):
         self.es_url = es_url
@@ -58,15 +58,22 @@ class ElasticSearchPipeline(object):
         # check for a to_elasticsearch method on the item
         if hasattr(item, "to_elasticsearch") and callable(item.to_elasticsearch):
             es_item = item.to_elasticsearch(self.es_index, self.es_type)
-            self.records.append(es_item)
+            es_item["_index"] = es_item.get("_index", self.es_index)
+            es_item["_type"] = es_item.get("_type", self.es_type)
+            es_item["_op_type"] = es_item.get("_op_type", "index")
         else:
             es_item = dict(item)
             es_item["_index"] = self.es_index
             es_item["_type"] = self.es_type
             es_item["_op_type"] = "index"
-            es_item["_id"] = item["id"]
+            es_item["_id"] = item.get("id")
             del es_item["id"]
-            self.records.append(es_item)
+
+        if not es_item.get("_id"):
+            logging.warning("[elasticsearch] Cannot save as no ID provided for item")
+            return item
+
+        self.records.append(es_item)
 
         if len(self.records) >= self.es_bulk_limit:
             self.save_records()

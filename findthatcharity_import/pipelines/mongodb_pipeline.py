@@ -4,7 +4,7 @@ import logging
 from pymongo import MongoClient
 from pymongo.errors import BulkWriteError
 
-class MongoDBPipeline(object):
+class MongoDBPipeline():
 
     def __init__(self, mongo_uri, mongo_db, mongo_collection, mongo_bulk_limit, stats):
         self.mongo_uri = mongo_uri
