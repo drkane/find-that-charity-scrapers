@@ -4,7 +4,7 @@ FROM ubuntu:latest
 RUN set -x \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
-       python3 python3-pip python3-setuptools \
+       python3 python3-pip python3-dev python3-setuptools \
     && pip3 install chaperone \
     && mkdir /etc/chaperone.d
 
