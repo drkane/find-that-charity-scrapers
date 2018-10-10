@@ -34,7 +34,6 @@ PyHamcrest==1.9.0
 pymongo==3.7.1
 pyOpenSSL==18.0.0
 pypiwin32==223
-pywin32==223
 queuelib==1.5.0
 Scrapy==1.5.1
 scrapyd==1.2.0
