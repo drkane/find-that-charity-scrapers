@@ -38,6 +38,6 @@ ADD scrapyd.conf /etc/scrapyd/scrapyd.conf
 ADD nginx.conf /etc/nginx/sites-enabled/default
 ADD chaperone.conf /etc/chaperone.d/chaperone.conf
 
-EXPOSE 6800
+EXPOSE 6801
 
 ENTRYPOINT ["/usr/local/bin/chaperone"]
