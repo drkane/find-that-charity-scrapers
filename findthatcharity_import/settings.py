@@ -14,7 +14,7 @@ BOT_NAME = 'findthatcharity_import'
 SPIDER_MODULES = ['findthatcharity_import.spiders']
 NEWSPIDER_MODULE = 'findthatcharity_import.spiders'
 
-DEBUG_ENABLED = False
+DEBUG_ENABLED = True
 DEBUG_ROWS = 500
 
 # CRITICAL, ERROR, WARNING, INFO, DEBUG
