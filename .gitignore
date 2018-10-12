@@ -6,3 +6,4 @@ dbs/
 logs/
 project.egg-info/
 build/
+outputs/

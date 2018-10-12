@@ -18,7 +18,7 @@ class ElasticSearchPipeline():
     @classmethod
     def from_crawler(cls, crawler):
         return cls(
-            es_url=crawler.settings.get('ES_URL', 'http://localhost:9200'),
+            es_url=crawler.settings.get('ES_URL'),
             es_index=crawler.settings.get('ES_INDEX', 'charitysearch'),
             es_type=crawler.settings.get('ES_TYPE', 'organisation'),
             es_bulk_limit=crawler.settings.get('ES_BULK_LIMIT', 500),
@@ -27,14 +27,20 @@ class ElasticSearchPipeline():
 
     def open_spider(self, spider):
 
+        if self.es_url is None:
+            return
+
         # @TODO: add a method which sets all the current records from a spider to inactive (or deletes them)
 
         self.client = Elasticsearch(self.es_url)
         if not self.client.ping():
+            self.client = None
             raise ValueError("Elasticsearch connection failed")
         self.records = []
 
     def close_spider(self, spider):
+        if self.client is None:
+            return
         self.save_records()
 
     def save_records(self):
@@ -54,6 +60,9 @@ class ElasticSearchPipeline():
         self.records = []
 
     def process_item(self, item, spider):
+
+        if self.client is None:
+            return
 
         # check for a to_elasticsearch method on the item
         if hasattr(item, "to_elasticsearch") and callable(item.to_elasticsearch):

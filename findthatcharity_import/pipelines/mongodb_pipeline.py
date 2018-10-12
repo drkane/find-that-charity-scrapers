@@ -18,7 +18,7 @@ class MongoDBPipeline():
     @classmethod
     def from_crawler(cls, crawler):
         return cls(
-            mongo_uri=crawler.settings.get('MONGO_URI', 'mongodb://localhost:27017'),
+            mongo_uri=crawler.settings.get('MONGO_URI'),
             mongo_db=crawler.settings.get('MONGO_DB', 'charitysearch'),
             mongo_collection=crawler.settings.get('MONGO_COLLECTION', 'organisation'),
             mongo_bulk_limit=crawler.settings.get('MONGO_BULK_LIMIT', 50000),
@@ -27,12 +27,17 @@ class MongoDBPipeline():
 
     def open_spider(self, spider):
 
+        if not self.mongo_uri:
+            return
+
         # @TODO: add a method which sets all the current records from a spider to inactive (or deletes them)
         self.client = MongoClient(self.mongo_uri)
         self.client.server_info()
         self.records = {}
 
     def close_spider(self, spider):
+        if self.client is None:
+            return
         self.save_records()
         self.client.close()
 
@@ -62,6 +67,9 @@ class MongoDBPipeline():
         self.records = {}
 
     def process_item(self, item, spider):
+
+        if self.client is None:
+            return
 
         # check for a to_mongodb method on the item
         if hasattr(item, "to_mongodb") and callable(item.to_mongodb):
