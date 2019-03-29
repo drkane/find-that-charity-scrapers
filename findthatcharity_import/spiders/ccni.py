@@ -12,7 +12,7 @@ class CCNISpider(BaseScraper):
     name = 'ccni'
     allowed_domains = ['charitycommissionni.org.uk', 'gist.githubusercontent.com']
     start_urls = [
-        "http://www.charitycommissionni.org.uk/charity-search/?q=&include=Linked&include=Removed&exportCSV=1",
+        "https://www.charitycommissionni.org.uk/umbraco/api/charityApi/ExportSearchResultsToCsv/?include=Linked&include=Removed",
         "https://gist.githubusercontent.com/BobHarper1/2687545c562b47bc755aef2e9e0de537/raw/ac052c33fd14a08dd4c2a0604b54c50bc1ecc0db/ccni_extra"
     ]
     org_id_prefix = "GB-NIC"
