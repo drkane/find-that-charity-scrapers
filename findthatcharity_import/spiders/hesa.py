@@ -56,7 +56,7 @@ class HesaSpider(BaseScraper):
                 "addressCountry": None,
                 "postalCode": None,
                 "telephone": None,
-                "alternateName": None,
+                "alternateName": [],
                 "email": None,
                 "description": None,
                 "organisationType": ["Higher Education"],
