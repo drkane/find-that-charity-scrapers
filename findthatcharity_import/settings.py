@@ -72,6 +72,7 @@ ROBOTSTXT_OBEY = False
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     # 'findthatcharity_import.pipelines.postcode_lookup_pipeline.PostcodeLookupPipeline': 100,
+    'findthatcharity_import.pipelines.sqlsave_pipeline.SQLSavePipeline': 300,
     'findthatcharity_import.pipelines.elasticsearch_pipeline.ElasticSearchPipeline': 300,
     'findthatcharity_import.pipelines.mongodb_pipeline.MongoDBPipeline': 300,
 }

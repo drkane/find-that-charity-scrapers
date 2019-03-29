@@ -19,9 +19,6 @@ class BaseScraper(scrapy.Spider):
 
     def parse_csv(self, response):
 
-        if hasattr(self, "source"):
-            yield Source(**self.source)
-
         try:
             csv_text = response.text
         except AttributeError:
@@ -33,6 +30,9 @@ class BaseScraper(scrapy.Spider):
                 if self.settings.getbool("DEBUG_ENABLED") and k > self.settings.getint("DEBUG_ROWS", 100):
                     break
                 yield self.parse_row(row)
+
+        if hasattr(self, "source"):
+            yield Source(**self.source)
 
     def get_org_id(self, record):
         return "-".join([self.org_id_prefix, str(record.get(self.id_field))])

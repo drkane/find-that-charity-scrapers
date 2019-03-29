@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 import math
 
+import dateutil.parser
 import scrapy
+
+from .db import tables
 
 class Organisation(scrapy.Item):
     """
@@ -77,6 +80,38 @@ class Organisation(scrapy.Item):
                 words.update([" ".join(w[r:]) for r in range(len(w))])
         return list(words)
 
+    def to_tables(self):
+        return {
+            "organisation": [{
+                c.name: self.get(c.name, None) for c in tables["organisation"].columns
+            }],
+            "organisation_types": [{
+                "organisation_id": self.get("id"),
+                "organisationType": i
+            } for i in self.get("organisationType", []) if i],
+            "organisation_names": [{
+                "organisation_id": self.get("id"),
+                "name": i
+            } for i in self.get("alternateName", []) if i],
+            "organisation_sources": [{
+                "organisation_id": self.get("id"),
+                "source_id": i
+            } for i in self.get("sources", []) if i],
+            "orgids": [{
+                "id": i,
+                "organisation_id": self.get("id"),
+            } for i in self.get("orgIDs", []) if i],
+            "location": [{
+                c.name: i.get(c.name, None) for c in tables["organisation"].columns
+            } for i in self.get("location", []) if i.get("id")],
+            "organisation_locations": [{
+                "organisation_id": self.get("id"),
+                "location_id": i["id"],
+            } for i in self.get("location", []) if i.get("id")],
+        }
+
+
+
 class Source(scrapy.Item):
     """
     Item representing a data source from the scrapers
@@ -106,6 +141,29 @@ class Source(scrapy.Item):
         md_item = dict(self)
         md_item["_id"] = md_item["identifier"]
         return ('source', md_item)
+
+    def to_tables(self):
+        source = {}
+        for c in tables["source"].columns:
+            source[c.name] = self.get(c.name, None) 
+            if source[c.name] == "":
+                source[c.name] = None
+        if source["modified"] and isinstance(source["modified"], str):
+            source["modified"] = dateutil.parser.parse(source["modified"])
+        if source["issued"] and isinstance(source["issued"], str):
+            source["issued"] = dateutil.parser.parse(source["issued"])
+        source["publisher_name"] = self.get("publisher", {}).get("name")
+        source["publisher_website"] = self.get("publisher", {}).get("website")
+    
+        return {
+            "source": [source],
+            "distribution": [{
+                "source_id": self.get("identifier"),
+                "title": i.get("title"),
+                "downloadURL": i.get("downloadURL"),
+                "accessURL": i.get("accessURL"),
+            } for i in self.get("distribution", []) if i.get("title")],
+        }
 
 
 AREA_TYPES = {
