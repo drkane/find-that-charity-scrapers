@@ -13,8 +13,8 @@ class OSCRSpider(BaseScraper):
     name = 'oscr'
     allowed_domains = ['oscr.org.uk', 'githubusercontent.com']
     start_urls = [
-        "https://www.oscr.org.uk/about-charities/search-the-register/charity-register-download",
-        "https://www.oscr.org.uk/about-charities/search-the-register/former-charities-download",
+        "https://www.oscr.org.uk/umbraco/Surface/FormsSurface/CharityRegDownload",
+        "https://www.oscr.org.uk/umbraco/Surface/FormsSurface/CharityFormerRegDownload",
         "https://raw.githubusercontent.com/drkane/charity-lookups/master/dual-registered-uk-charities.csv",
     ]
     org_id_prefix = "GB-SC"
@@ -61,54 +61,9 @@ class OSCRSpider(BaseScraper):
                 self.dual_registered[regno].append(row["E&W Charity Number"].strip())
 
         return [
-            scrapy.Request(self.start_urls[0], callback=self.fetch_zip),
-            scrapy.Request(self.start_urls[1], callback=self.fetch_zip),
+            scrapy.Request(self.start_urls[0], callback=self.process_zip),
+            scrapy.Request(self.start_urls[1], callback=self.process_zip),
         ]
-
-    def fetch_zip(self, response, agreeterms=True):
-        self.logger.info("Using url: %s" % response.url)
-
-        page_name = "CharityRegRemovedDownload_10" if "former-charities" in response.url else "CharityRegDownload_10"
-        TERMS_AND_CONDITIONS_TEXT = "ContentPlaceHolderDefault_WebsiteContent_ctl05_{}_lblTermsConditions".format(page_name)
-        formdata = {
-            "ctl00$ctl00$ctl00$ContentPlaceHolderDefault$WebsiteContent$ctl05${}$cbTermsConditions".format(page_name): "on",
-            "ctl00$ctl00$ctl00$ContentPlaceHolderDefault$WebsiteContent$ctl05${}$uxTemp".format(page_name): "",
-            "ctl00$ctl00$ctl00$ContentPlaceHolderDefault$WebsiteContent$ctl05${}$btnProceed".format(page_name): "Proceed"
-        }
-        for i in ["__EVENTTARGET", "__EVENTARGUMENT", "__VIEWSTATE", "__VIEWSTATEGENERATOR", "_TSM_HiddenField_"]:
-            formdata[i] = response.css('[name="{}"]::attr(value)'.format(i)).extract_first()
-            if not formdata[i]:
-                formdata[i] = ""
-
-        # get the terms and conditions box
-        tandcs = "".join(["\r\n" if t == "" else t.strip() for t in response.css("#{} *::text".format(TERMS_AND_CONDITIONS_TEXT)).extract()])
-        if not agreeterms:
-            self.logger.info("To continue accept the following terms and conditions")
-            self.logger.info(tandcs)
-            accept = input(
-                "Do you accept the terms and conditions? (y/n) ")
-            if accept[0].strip().lower() != "y":
-                self.logger.error(
-                    "Did not download OSCR data as terms and conditions not accepted")
-                return
-        else:
-            self.logger.info(tandcs)
-
-        self.logger.debug(formdata)
-
-        self.source["distribution"].append({
-            "downloadURL": response.url,
-            "accessURL": response.url,
-            "title": "Office of Scottish Charity Regulator Charity Register Download{}".format(
-                " - Former charities" if "former-charities" in response.url else ""
-            )
-        })
-        self.source["modified"] = datetime.datetime.now().isoformat()
-
-        return scrapy.FormRequest(url=response.url,
-                                  method='POST',
-                                  formdata=formdata,
-                                  callback=self.process_zip)
 
 
     def process_zip(self, response):
