@@ -36,7 +36,7 @@ WAL_LAS = {
 class SchoolsWalesSpider(BaseScraper):
     name = 'schools_wales'
     allowed_domains = ['gov.wales']
-    start_urls = ["https://gov.wales/statistics-and-research/address-list-of-schools/?lang=en"]
+    start_urls = ["https://gov.wales/address-list-schools"]
     org_id_prefix = "GB-WALEDU"
     id_field = "School Number"
     date_fields = []
@@ -65,7 +65,7 @@ class SchoolsWalesSpider(BaseScraper):
         return [scrapy.Request(self.start_urls[0], callback=self.find_file)]
 
     def find_file(self, response):
-        link = response.css("a.doc_title::attr(href)").extract_first()
+        link = response.css("div.document a::attr(href)").extract_first()
         self.logger.info(link)
         self.source["distribution"][0]["downloadURL"] = link
         self.source["distribution"][0]["accessURL"] = self.start_urls[0]
