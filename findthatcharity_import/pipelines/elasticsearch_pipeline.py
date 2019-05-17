@@ -62,7 +62,7 @@ class ElasticSearchPipeline():
     def process_item(self, item, spider):
 
         if self.client is None:
-            return
+            return item
 
         # check for a to_elasticsearch method on the item
         if hasattr(item, "to_elasticsearch") and callable(item.to_elasticsearch):

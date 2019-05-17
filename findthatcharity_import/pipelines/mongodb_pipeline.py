@@ -69,7 +69,7 @@ class MongoDBPipeline():
     def process_item(self, item, spider):
 
         if self.client is None:
-            return
+            return item
 
         # check for a to_mongodb method on the item
         if hasattr(item, "to_mongodb") and callable(item.to_mongodb):
