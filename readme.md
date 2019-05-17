@@ -21,6 +21,7 @@ The spiders are found in the `/findthatcharity_import/spiders` directory and cov
  - `ccni`: Registered charities in Northern Ireland
  - `oscr`: Registered charities in Scotland
  - `companies`: Companies registered with Companies House (the scraper only imports non-profit company types)
+ - `mutuals`: Mutual societies registered with the Financial Conduct Authority
  - `gor`: A register of government organisations
  - `grid`: Entries from the [Global Research Identifier Database](https://www.grid.ac/) - only those that are based in the UK and are not a registered company are included.
  - `hesa`: Organisations covered by the Higher Education Statistics Agency.
