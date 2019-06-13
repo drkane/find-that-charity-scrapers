@@ -6,7 +6,6 @@ setup(
         "findthatcharity_import",
         "findthatcharity_import.spiders",
         "findthatcharity_import.pipelines",
-        "findthatcharity_import.settings",
     ],
     version="0.0.1",
     author="David Kane david@dkane.net",
