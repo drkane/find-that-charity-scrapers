@@ -12,6 +12,7 @@
 BOT_NAME = 'findthatcharity_import'
 
 SPIDER_MODULES = ['findthatcharity_import.spiders']
+COMMANDS_MODULE = 'findthatcharity_import.commands'
 NEWSPIDER_MODULE = 'findthatcharity_import.spiders'
 
 DEBUG_ENABLED = False

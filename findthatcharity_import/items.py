@@ -42,14 +42,14 @@ class Organisation(scrapy.Item):
 
     def __repr__(self):
         return '<Org {} "{}"{}>'.format(
-            self.get("id"), 
+            self.get("id"),
             self.get("name"),
             " INACTIVE" if not self.get("active") else ""
         )
 
     def to_elasticsearch(self):
         es_item = dict(self)
-        es_item["_index"] = 'organisation'
+        es_item["_index"] = self.__class__.__name__.lower()
         es_item["_op_type"] = "index"
         es_item["_id"] = es_item["id"]
         del es_item["id"]
@@ -61,6 +61,23 @@ class Organisation(scrapy.Item):
         }
 
         return es_item
+
+    @staticmethod
+    def es_mapping():
+        return {
+            "properties": {
+                "geo": {
+                    "properties": {
+                        "location": {
+                            "type": "geo_point"
+                        }
+                    }
+                },
+                "complete_names": {
+                    "type": "completion"
+                }
+            }
+        }
 
     def to_mongodb(self):
         md_item = dict(self)
@@ -124,13 +141,13 @@ class Source(scrapy.Item):
     modified = scrapy.Field()
     publisher = scrapy.Field()
     distribution = scrapy.Field()
-    
+
     def __repr__(self):
         return '<Source "{}">'.format(self.get("title"))
 
     def to_elasticsearch(self):
         es_item = dict(self)
-        es_item["_index"] = 'source'
+        es_item["_index"] = self.__class__.__name__.lower()
         es_item["_op_type"] = "index"
         es_item["_id"] = es_item["identifier"]
         return es_item
@@ -143,7 +160,7 @@ class Source(scrapy.Item):
     def to_tables(self):
         source = {}
         for c in tables["source"].columns:
-            source[c.name] = self.get(c.name, None) 
+            source[c.name] = self.get(c.name, None)
             if source[c.name] == "":
                 source[c.name] = None
         if source["modified"] and isinstance(source["modified"], str):
@@ -152,7 +169,7 @@ class Source(scrapy.Item):
             source["issued"] = dateutil.parser.parse(source["issued"])
         source["publisher_name"] = self.get("publisher", {}).get("name")
         source["publisher_website"] = self.get("publisher", {}).get("website")
-    
+
         return {
             "source": [source],
             "distribution": [{
