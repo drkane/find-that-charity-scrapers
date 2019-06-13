@@ -1,12 +1,8 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name="findthatcharity_import",
-    packages=[
-        "findthatcharity_import",
-        "findthatcharity_import.spiders",
-        "findthatcharity_import.pipelines",
-    ],
+    packages=find_packages(),
     version="0.0.1",
     author="David Kane david@dkane.net",
     include_package_data=True,
