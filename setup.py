@@ -11,7 +11,7 @@ setup(
     install_requires=[
         "Scrapy==1.5.1",
         "validators==0.12.2",
-        "titlecase==0.12.0".
+        "titlecase==0.12.0",
         "tqdm==4.26.0",
         "openpyxl==2.5.7",
     ]
