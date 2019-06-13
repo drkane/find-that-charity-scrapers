@@ -6,10 +6,8 @@ from elasticsearch.helpers import bulk
 
 class ElasticSearchPipeline():
 
-    def __init__(self, es_url, es_index, es_type, es_bulk_limit, stats):
+    def __init__(self, es_url, es_bulk_limit, stats):
         self.es_url = es_url
-        self.es_index = es_index
-        self.es_type = es_type
         self.es_bulk_limit = es_bulk_limit
         self.stats = stats
         self.client = None
@@ -19,8 +17,6 @@ class ElasticSearchPipeline():
     def from_crawler(cls, crawler):
         return cls(
             es_url=crawler.settings.get('ES_URL'),
-            es_index=crawler.settings.get('ES_INDEX', 'charitysearch'),
-            es_type=crawler.settings.get('ES_TYPE', 'organisation'),
             es_bulk_limit=crawler.settings.get('ES_BULK_LIMIT', 500),
             stats=crawler.stats,
         )
@@ -48,7 +44,7 @@ class ElasticSearchPipeline():
 
         results = bulk(self.client, self.records, raise_on_error=False, chunk_size=self.es_bulk_limit)
 
-        logging.info("[elasticsearch] saved %s records to %s index", results[0], self.es_index)
+        logging.info("[elasticsearch] saved %s records", results[0])
         self.stats.inc_value('elasticsearch/indexed_items', results[0])
         if results[1]:
             logging.info("[elasticsearch] %s errors reported", len(results[1]))
@@ -66,20 +62,23 @@ class ElasticSearchPipeline():
 
         # check for a to_elasticsearch method on the item
         if hasattr(item, "to_elasticsearch") and callable(item.to_elasticsearch):
-            es_item = item.to_elasticsearch(self.es_index, self.es_type)
-            es_item["_index"] = es_item.get("_index", self.es_index)
-            es_item["_type"] = es_item.get("_type", self.es_type)
+            es_item = item.to_elasticsearch()
+            es_item["_type"] = "item"
             es_item["_op_type"] = es_item.get("_op_type", "index")
         else:
             es_item = dict(item)
-            es_item["_index"] = self.es_index
-            es_item["_type"] = self.es_type
+            es_item["_index"] = "item"
+            es_item["_type"] = "item"
             es_item["_op_type"] = "index"
             es_item["_id"] = item.get("id")
             del es_item["id"]
 
         if not es_item.get("_id"):
             logging.warning("[elasticsearch] Cannot save as no ID provided for item")
+            return item
+
+        if not es_item.get("_index"):
+            logging.warning("[elasticsearch] Cannot save as no index provided for item")
             return item
 
         self.records.append(es_item)

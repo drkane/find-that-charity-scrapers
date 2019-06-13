@@ -47,10 +47,9 @@ class Organisation(scrapy.Item):
             " INACTIVE" if not self.get("active") else ""
         )
 
-    def to_elasticsearch(self, es_index, es_type):
+    def to_elasticsearch(self):
         es_item = dict(self)
-        es_item["_index"] = es_index
-        es_item["_type"] = es_type
+        es_item["_index"] = 'organisation'
         es_item["_op_type"] = "index"
         es_item["_id"] = es_item["id"]
         del es_item["id"]
@@ -129,10 +128,9 @@ class Source(scrapy.Item):
     def __repr__(self):
         return '<Source "{}">'.format(self.get("title"))
 
-    def to_elasticsearch(self, es_index, es_type):
+    def to_elasticsearch(self):
         es_item = dict(self)
-        es_item["_index"] = es_index
-        es_item["_type"] = "source"
+        es_item["_index"] = 'source'
         es_item["_op_type"] = "index"
         es_item["_id"] = es_item["identifier"]
         return es_item
