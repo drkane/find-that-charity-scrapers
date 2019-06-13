@@ -2,7 +2,12 @@ from setuptools import setup
 
 setup(
     name="findthatcharity_import",
-    packages=["findthatcharity_import", "findthatcharity_import.spiders", "findthatcharity_import.pipelines"],
+    packages=[
+        "findthatcharity_import",
+        "findthatcharity_import.spiders",
+        "findthatcharity_import.pipelines",
+        "findthatcharity_import.settings",
+    ],
     version="0.0.1",
     author="David Kane david@dkane.net",
     include_package_data=True,
