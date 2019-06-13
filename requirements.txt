@@ -48,7 +48,7 @@ toml==0.9.6
 tqdm==4.26.0
 Twisted==18.9.0
 typed-ast==1.1.0
-urllib3==1.23
+urllib3==1.24.2
 validators==0.12.2
 w3lib==1.19.0
 wrapt==1.10.11
