@@ -161,7 +161,7 @@ class CompaniesSpider(BaseScraper):
 
         return Organisation(**{
             "id": self.get_org_id(record),
-            "name": record.get("CompanyName"),
+            "name": self.parse_name(record.get("CompanyName")),
             "charityNumber": None,
             "companyNumber": record.get(self.id_field),
             "streetAddress": ", ".join(address1),
@@ -170,7 +170,7 @@ class CompaniesSpider(BaseScraper):
             "addressCountry": record.get("RegAddress_Country"),
             "postalCode": record.get("RegAddress_PostCode"),
             "telephone": None,
-            "alternateName": [n["CompanyName"] for n in record["previous_names"]],
+            "alternateName": [self.parse_name(n["CompanyName"]) for n in record["previous_names"]],
             "email": None,
             "description": None,
             "organisationType": orgtypes,

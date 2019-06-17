@@ -146,7 +146,7 @@ class NHSODSSpider(BaseScraper):
 
         return Organisation(**{
             "id": self.get_org_id(record),
-            "name": record.get("Name"),
+            "name": self.parse_name(record.get("Name")),
             "charityNumber": None,
             "companyNumber": None,
             "streetAddress": address["streetAddress"],
