@@ -182,7 +182,7 @@ class CCEWSpider(BaseScraper):
             org_ids = [self.get_org_id(record)]
             coyno = self.parse_company_number(record.get("coyno"))
             if coyno:
-                org_types.append("Registered Company")
+                org_types.append("Incorporated Charity")
                 org_ids.append("GB-COH-{}".format(coyno))
 
             # check for CIOs
@@ -208,7 +208,7 @@ class CCEWSpider(BaseScraper):
                     self.parse_name(c["name"])
                     for c in record.get("extract_name", [])
                 ],
-                "email": record.get("phone"),
+                "email": record.get("email"),
                 "description": self.get_objects(record),
                 "organisationType": org_types,
                 "url": self.parse_url(record.get("web")),
