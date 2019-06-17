@@ -91,7 +91,17 @@ class OSCRSpider(BaseScraper):
             org_types.append(record.get("Regulatory Type"))
         if record.get("Designated religious body") == "Yes":
             org_types.append("Designated religious body")
-        if record.get("Constitutional Form") != "Other":
+        
+        if record.get("Constitutional Form") == "SCIO (Scottish Charitable Incorporated Organisation)":
+            org_types.append("Scottish Charitable Incorporated Organisation")
+        elif record.get("Constitutional Form") == "CIO (Charitable Incorporated Organisation, E&W)":
+            org_types.append("Charitable Incorporated Organisation")
+        elif record.get("Constitutional Form") == "Company (the charity is registered with Companies House)":
+            org_types.append("Registered Company")
+            org_types.append("Incorporated Charity")
+        elif record.get("Constitutional Form") == "Trust (founding document is a deed of trust) (other than educational endowment)":
+            org_types.append("Trust")
+        elif record.get("Constitutional Form") != "Other":
             org_types.append(record.get("Constitutional Form"))
 
         org_ids = [self.get_org_id(record)]

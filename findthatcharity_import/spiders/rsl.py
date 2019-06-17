@@ -57,7 +57,7 @@ class RSLSpider(BaseScraper):
             for row in csvreader:
                 self.reg_numbers[row["RP Code"]] = {
                     "charity_number": "GB-CHC-{}".format(row["Charity Number"]) if row["Charity Number"] != "" else None,
-                    "company_number": "GB-COH-{}".format(row["Company Number"]) if row["Company Number"] != "" else None,
+                    "company_number": "GB-COH-{}".format(row["Company Number"].zfill(8)) if row["Company Number"] != "" else None,
                 }
 
         return [scrapy.Request(self.start_urls[0], callback=self.find_excel)]
@@ -98,7 +98,17 @@ class RSLSpider(BaseScraper):
         ]
         if record.get("Corporate Form"):
             if record["Corporate Form"] == "Company":
+                org_types.append("Registered Company")
                 org_types.append("{} {}".format(record["Designation"], record["Corporate Form"]))
+            elif record["Corporate Form"] == "CIO-Charitable Incorporated Organisation":
+                org_types.append("Charitable Incorporated Organisation")
+                org_types.append("Registered Charity")
+            elif record["Corporate Form"] == "Charitable Company":
+                org_types.append("Registered Company")
+                org_types.append("Incorporated Charity")
+                org_types.append("Registered Charity")
+            elif record["Corporate Form"] == "Unincorporated Charity":
+                org_types.append("Registered Charity")
             else:
                 org_types.append(record["Corporate Form"])
         elif record.get("Designation"):

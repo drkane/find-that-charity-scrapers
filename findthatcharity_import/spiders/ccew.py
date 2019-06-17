@@ -182,6 +182,7 @@ class CCEWSpider(BaseScraper):
             org_ids = [self.get_org_id(record)]
             coyno = self.parse_company_number(record.get("coyno"))
             if coyno:
+                org_types.append("Registered Company")
                 org_types.append("Incorporated Charity")
                 org_ids.append("GB-COH-{}".format(coyno))
 
