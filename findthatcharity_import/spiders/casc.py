@@ -15,7 +15,7 @@ class CascSpider(BaseScraper):
     source = {
         "title": "Community amateur sports clubs (CASCs) registered with HMRC",
         "description": "Check which sports clubs are registered with HMRC as community amateur sports clubs as at April 2018.",
-        "identifier": "cascs",
+        "identifier": "casc",
         "license": "http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
         "license_name": "Open Government Licence v3.0",
         "issued": "",
@@ -34,6 +34,9 @@ class CascSpider(BaseScraper):
         self.rowcount = 0
         for list_page in response.css(".attachment-details h2"):
             yield response.follow(list_page.css("a::attr(href)").extract_first(), callback=self.parse)
+
+        self.source["modified"] = datetime.datetime.now().isoformat()
+        yield Source(**self.source)
 
     def parse(self, response):
         """

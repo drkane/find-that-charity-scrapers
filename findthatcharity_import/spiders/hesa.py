@@ -74,3 +74,6 @@ class HesaSpider(BaseScraper):
                 ],
                 "sources": [self.source["identifier"]],
             })
+
+        self.source["modified"] = datetime.datetime.now().isoformat()
+        yield Source(**self.source)

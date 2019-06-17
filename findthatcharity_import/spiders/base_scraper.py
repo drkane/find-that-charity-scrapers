@@ -32,6 +32,8 @@ class BaseScraper(scrapy.Spider):
                 yield self.parse_row(row)
 
         if hasattr(self, "source"):
+            if not self.source["modified"]:
+                self.source["modified"] = datetime.datetime.now().isoformat()
             yield Source(**self.source)
 
     def get_org_id(self, record):

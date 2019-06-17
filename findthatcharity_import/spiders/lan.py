@@ -26,7 +26,7 @@ class LocalAuthorityNorthernIrelandSpider(BaseScraper):
     source = {
         "title": "Local authorites in Northern Ireland register",
         "description": "Local authorities in Northern Ireland",
-        "identifier": "las",
+        "identifier": "lan",
         "license": "http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
         "license_name": "Open Government Licence v3.0",
         "issued": "",
