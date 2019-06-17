@@ -34,17 +34,19 @@ class Command(ScrapyCommand):
         for i in [Organisation, Source]:
             index_name = i.__name__.lower()
 
-            if opts.get('reset') and es.indices.exists(index=index_name):
-                confirm = input("This will delete index \"{}\" - are you sure? [y]es/[n]o".format(index_name))
+            if opts.reset and es.indices.exists(index=index_name):
+                logging.info("[elasticsearch] index '%s' already exists", index_name)
+                confirm = input("This will delete index \"{}\" - are you sure? [y]es/[n]o: ".format(index_name))
                 if confirm[0:1].lower()=="y":
                     es.indices.delete(index=index_name)
 
             if not es.indices.exists(index=index_name):
                 if hasattr(i, "es_mapping"):
                     es.indices.create(index_name, {
-                        "mappings": i.es_mapping()
+                        "mappings": {
+                            "item": i.es_mapping()
+                        }
                     })
                 else:
                     es.indices.create(index_name, {})
                 logging.info("[elasticsearch] created index '%s'", index_name)
-            logging.info("[elasticsearch] index '%s' already exists", index_name)
