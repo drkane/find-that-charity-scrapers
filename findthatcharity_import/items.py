@@ -88,7 +88,18 @@ class Organisation(scrapy.Item):
     def get_complete_names(self, item):
 
         # get names
-        all_names = item.get("alternateName", []) + [item.get("name", [])]
+        all_names = []
+        
+        # add main name
+        if item.get("name"):
+            all_names.append(item.get("name"))
+
+        # add alternate names
+        if isinstance(item.get("alternateName"), list):
+            all_names.extend(item.get("alternateName"))
+        elif isinstance(item.get("alternateName"), str):
+            all_names.append(item.get("alternateName"))
+
         words = set()
         for n in all_names:
             if n:
