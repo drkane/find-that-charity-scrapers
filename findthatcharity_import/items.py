@@ -74,7 +74,14 @@ class Organisation(scrapy.Item):
                     }
                 },
                 "complete_names": {
-                    "type": "completion"
+                    "type": "completion",
+                    "contexts": [
+                        {
+                            "name": "organisationType",
+                            "type": "category",
+                            "path": "organisationType"
+                        }
+                    ],
                 }
             }
         }
