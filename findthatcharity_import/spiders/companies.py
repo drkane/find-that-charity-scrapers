@@ -87,7 +87,7 @@ class CompaniesSpider(BaseScraper):
         link = response.css("a::attr(href)").re_first(self.zip_regex)
 
         self.source["distribution"][0]["accessURL"] = self.start_urls[0]
-        self.source["distribution"][0]["downloadURL"] = link
+        self.source["distribution"][0]["downloadURL"] = response.urljoin(link)
         self.source["modified"] = datetime.datetime.now().isoformat()
 
         return [scrapy.Request(response.urljoin(link), callback=self.process_zip)]
