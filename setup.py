@@ -15,5 +15,9 @@ setup(
         "tqdm==4.26.0",
         "openpyxl==2.5.7",
         "SQLAlchemy==1.3.1",
+        "pyexcel-ezodf==0.3.4",
+        "pyexcel-io==0.5.9.1",
+        "pyexcel-ods3==0.5.2",
+        "pymongo==3.7.1",
     ]
 )
