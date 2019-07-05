@@ -96,12 +96,12 @@ class CCEWSpider(BaseScraper):
             "welsh", # 	    char(1) 	    Flag: Y or blank
             "master", # 	integer 	    may be blank. If aootype=D then holds continent; if aootype=B then holds GLA/met county
         ],
-        'extract_objects': [
-            "regno",  # 	integer 	    egistered number of a charity
-            "subno",  # 	integer 	    ubsidiary number of a charity (may be 0 for main/group charity)
-            "seqno",  # 	char(4) 	    equence number (in practice 0-20)
-            "object", #  	varchar(255) 	Description of objects of a charity
-        ],
+        # 'extract_objects': [
+        #     "regno",  # 	integer 	    egistered number of a charity
+        #     "subno",  # 	integer 	    ubsidiary number of a charity (may be 0 for main/group charity)
+        #     "seqno",  # 	char(4) 	    equence number (in practice 0-20)
+        #     "object", #  	varchar(255) 	Description of objects of a charity
+        # ],
     }
 
     def start_requests(self):
