@@ -277,7 +277,7 @@ class CCEWSpider(BaseScraper):
 
     def get_objects(self, record):
         objects = []
-        for o in record.get("extract_objects"):
+        for o in record.get("extract_objects", []):
             if o.get("subno") == '0' and isinstance(o['object'], str):
                 objects.append(re.sub("[0-9]{4}$", "", o['object']))
         return ''.join(objects)
