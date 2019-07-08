@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
 import datetime
-import io
-import csv
 
 import scrapy
 
 from .base_scraper import BaseScraper
-from ..items import Organisation, Source
+from ..items import Organisation
 from .lae import LA_TYPES
 
 class LocalAuthorityNorthernIrelandSpider(BaseScraper):
-    name = 'lan'
+    name = 'lani'
     allowed_domains = ['register.gov.uk']
     start_urls = [
         "https://local-authority-nir.register.gov.uk/records.csv?page-size=5000"
     ]
-    org_id_prefix = "GB-LAN"
+    org_id_prefix = "GB-LANI"
     id_field = "key"
     date_fields = ["entry-timestamp", "start-date", "end-date"]
     date_format = {
@@ -26,7 +24,7 @@ class LocalAuthorityNorthernIrelandSpider(BaseScraper):
     source = {
         "title": "Local authorites in Northern Ireland register",
         "description": "Local authorities in Northern Ireland",
-        "identifier": "lan",
+        "identifier": "lani",
         "license": "http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
         "license_name": "Open Government Licence v3.0",
         "issued": "",
