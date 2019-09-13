@@ -85,6 +85,7 @@ class LocalAuthorityEnglandSpider(BaseScraper):
             "alternateName": [],
             "email": None,
             "description": None,
+            "organisationTypePrimary": "Local Authority",
             "organisationType": org_types,
             "url": None,
             "location": locations,
@@ -95,7 +96,7 @@ class LocalAuthorityEnglandSpider(BaseScraper):
             "active": record.get("end-date") is None,
             "parent": None,
             "orgIDs": org_ids,
-            "sources": [self.source["identifier"]],
+            "source": self.source["identifier"],
         })
 
 LA_TYPES = {
@@ -110,6 +111,7 @@ LA_TYPES = {
     "NMD": "Non-metropolitan district",
     "SRA": "Strategic Regional Authority",
     "UA": "Unitary authority",
+    "COMB": "Combined authority",
 }
 
 # @TODO: I don't think this list is up to date

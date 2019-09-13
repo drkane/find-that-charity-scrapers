@@ -138,7 +138,7 @@ class GIASSpider(BaseScraper):
             active=record.get("EstablishmentStatus (name)") != "Closed",
             parent=record.get("PropsName"),
             orgIDs=self.get_org_ids(record),
-            sources=[self.source["identifier"]]
+            source=self.source["identifier"]
         )
 
     def get_org_ids(self, record):

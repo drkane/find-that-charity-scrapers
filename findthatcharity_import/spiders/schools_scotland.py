@@ -142,7 +142,7 @@ class SchoolsScotlandSpider(BaseScraper):
                 orgIDs=[
                     org_id
                 ],
-                sources=[self.source["identifier"]]
+                source=self.source["identifier"]
             )
 
     def get_headers(self, row, sheet, row_number):

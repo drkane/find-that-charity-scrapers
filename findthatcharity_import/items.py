@@ -24,19 +24,20 @@ class Organisation(scrapy.Item):
     email            = scrapy.Field()
     description      = scrapy.Field()
     organisationType = scrapy.Field()
+    organisationTypePrimary = scrapy.Field()
     url              = scrapy.Field()
     location         = scrapy.Field()
     latestIncome     = scrapy.Field()
+    latestIncomeDate  = scrapy.Field()
     dateModified     = scrapy.Field()
     dateRegistered   = scrapy.Field()
     dateRemoved      = scrapy.Field()
     active           = scrapy.Field()
     parent           = scrapy.Field()
     orgIDs           = scrapy.Field()
-    sources          = scrapy.Field()
+    source           = scrapy.Field()
 
     # @TODO:
-    # Add `latestIncomeDate` field to show when it was added
     # Add `CompleteName` field for autocomplete
     # Add `Classification` fields?
 
@@ -119,29 +120,11 @@ class Organisation(scrapy.Item):
             "organisation": [{
                 c.name: self.get(c.name, None) for c in tables["organisation"].columns
             }],
-            "organisation_types": [{
-                "organisation_id": self.get("id"),
-                "organisationType": i
-            } for i in self.get("organisationType", []) if i],
-            "organisation_names": [{
-                "organisation_id": self.get("id"),
-                "name": i
-            } for i in self.get("alternateName", []) if i],
-            "organisation_sources": [{
-                "organisation_id": self.get("id"),
-                "source_id": i
-            } for i in self.get("sources", []) if i],
-            "orgids": [{
-                "id": i,
-                "organisation_id": self.get("id"),
-            } for i in self.get("orgIDs", []) if i],
-            "location": [{
-                c.name: i.get(c.name, None) for c in tables["organisation"].columns
-            } for i in self.get("location", []) if i.get("id")],
-            "organisation_locations": [{
-                "organisation_id": self.get("id"),
-                "location_id": i["id"],
-            } for i in self.get("location", []) if i.get("id")],
+            "organisation_links": [{
+                "organisation_id_a": self.get("id"),
+                "organisation_id_b": i,
+                "source": self.get("sources")
+            } for i in self.get("orgIDs", []) if i and i != self.get("id")],
         }
 
 
@@ -190,12 +173,6 @@ class Source(scrapy.Item):
 
         return {
             "source": [source],
-            "distribution": [{
-                "source_id": self.get("identifier"),
-                "title": i.get("title"),
-                "downloadURL": i.get("downloadURL"),
-                "accessURL": i.get("accessURL"),
-            } for i in self.get("distribution", []) if i.get("title")],
         }
 
 

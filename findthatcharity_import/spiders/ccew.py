@@ -237,7 +237,7 @@ class CCEWSpider(BaseScraper):
                 "active": record.get("orgtype") == "R",
                 "parent": None,
                 "orgIDs": org_ids,
-                "sources": [self.source["identifier"]],
+                "source": self.source["identifier"],
             })
 
     def get_locations(self, record):

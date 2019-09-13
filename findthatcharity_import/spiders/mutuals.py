@@ -88,5 +88,5 @@
 #             "active": record.get("Society Status", "").startswith("Registered"),
 #             "parent": None,
 #             "orgIDs": org_ids,
-#             "sources": [self.source["identifier"]],
+#             "source": self.source["identifier"],
 #         })

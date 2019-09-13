@@ -122,5 +122,5 @@ class SchoolsNISpider(BaseScraper):
             "active": record.get("Status") == "Open",
             "parent": None,
             "orgIDs": [self.get_org_id(record)],
-            "sources": [self.source["identifier"]],
+            "source": self.source["identifier"],
         })

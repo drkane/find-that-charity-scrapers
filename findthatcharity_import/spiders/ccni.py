@@ -103,7 +103,7 @@ class CCNISpider(BaseScraper):
             "active": record.get("Status") != "Removed",
             "parent": None,
             "orgIDs": org_ids,
-            "sources": [self.source["identifier"]],
+            "source": self.source["identifier"],
         })
 
     def parse_company_number(self, coyno):

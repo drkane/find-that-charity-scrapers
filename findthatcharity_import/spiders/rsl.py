@@ -147,6 +147,7 @@ class RSLSpider(BaseScraper):
             "alternateName": [],
             "email": None,
             "description": None,
+            "organisationTypePrimary": "Registered Provider of Social Housing",
             "organisationType": org_types,
             "url": None,
             "location": locations,
@@ -157,7 +158,7 @@ class RSLSpider(BaseScraper):
             "active": True,
             "parent": None,
             "orgIDs": org_ids,
-            "sources": [self.source["identifier"]],
+            "source": self.source["identifier"],
         })
 
 

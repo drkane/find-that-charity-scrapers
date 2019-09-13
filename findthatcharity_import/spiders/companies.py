@@ -183,5 +183,5 @@ class CompaniesSpider(BaseScraper):
             "active": (record.get("CompanyStatus") not in ['Dissolved', 'Inactive', 'Converted / Closed'] and not record.get("DissolutionDate")),
             "parent": None,
             "orgIDs": [self.get_org_id(record)],
-            "sources": [self.source["identifier"]],
+            "source": self.source["identifier"],
         })

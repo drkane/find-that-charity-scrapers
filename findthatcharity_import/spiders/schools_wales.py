@@ -121,7 +121,7 @@ class SchoolsWalesSpider(BaseScraper):
             "active": True,
             "parent": None,
             "orgIDs": [self.get_org_id(record)],
-            "sources": [self.source["identifier"]],
+            "source": self.source["identifier"],
         })
 
     def get_org_types(self, record):

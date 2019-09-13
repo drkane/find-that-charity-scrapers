@@ -84,20 +84,20 @@ class SQLSavePipeline(object):
             metadata.create_all(self.engine)
 
             # do any tasks before the spider is run
-            if hasattr(spider, "name"):
-                if self.conn.engine.dialect.has_table(self.conn.engine, tables["organisation"].name):
-                    self.conn.execute(
-                        tables["organisation"].update()\
-                            .values(active=False)\
-                            .where(
-                                tables["organisation"].c.id == tables["organisation_sources"].select(
-                                ).with_only_columns([
-                                    tables["organisation_sources"].c.organisation_id
-                                ]).where(
-                                    tables["organisation_sources"].c.source_id == getattr(spider, "name")
-                                )
-                            )
-                    )
+            # if hasattr(spider, "name"):
+            #     if self.conn.engine.dialect.has_table(self.conn.engine, tables["organisation"].name):
+            #         self.conn.execute(
+            #             tables["organisation"].update()\
+            #                 .values(active=False)\
+            #                 .where(
+            #                     tables["organisation"].c.id == tables["organisation_sources"].select(
+            #                     ).with_only_columns([
+            #                         tables["organisation_sources"].c.organisation_id
+            #                     ]).where(
+            #                         tables["organisation_sources"].c.source_id == getattr(spider, "name")
+            #                     )
+            #                 )
+            #         )
 
             self.commit_records(spider)
 

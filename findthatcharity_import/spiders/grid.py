@@ -121,6 +121,7 @@ It includes cross-linkages to a range of other identifier sources.''',
             "email": record.get("email_address"),
             "description": None,
             "organisationType": record.get("types", []),
+            "organisationTypePrimary": record.get("types", [])[0],
             "url": url,
             "location": [],
             "latestIncome": None,
@@ -130,7 +131,7 @@ It includes cross-linkages to a range of other identifier sources.''',
             "active": record.get("status") == "active",
             "parent": parent,
             "orgIDs": [self.get_org_id(record)] + self.get_org_ids(record.get("external_ids", {})),
-            "sources": [self.source["identifier"]],
+            "source": self.source["identifier"],
         })
 
         return org

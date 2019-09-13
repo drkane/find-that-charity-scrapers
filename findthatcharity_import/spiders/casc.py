@@ -86,7 +86,7 @@ class CascSpider(BaseScraper):
                     "active": True,
                     "parent": None,
                     "orgIDs": [self.get_org_id(cells)],
-                    "sources": [self.source["identifier"]],
+                    "source": self.source["identifier"],
                 })
 
     def get_org_id(self, record):

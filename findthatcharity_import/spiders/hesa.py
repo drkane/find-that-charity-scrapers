@@ -39,6 +39,12 @@ class HesaSpider(BaseScraper):
         ],
     }
 
+    org_types = {
+        "HEI": ["University", "Higher Education"],
+        "FEC": ["Further Education College", "Higher Education"],
+        "AP": ["Alternative Provider", "Higher Education"],
+    }
+
     def start_requests(self):
 
         self.source["distribution"][0]["accessURL"] = self.start_urls[0]
@@ -74,7 +80,7 @@ class HesaSpider(BaseScraper):
 
             yield Organisation(**{
                 "id": "-".join([self.org_id_prefix, str(cells[1])]),
-                "name": cells[2],
+                "name": cells[2].strip(),
                 "charityNumber": None,
                 "companyNumber": None,
                 "streetAddress": None,
@@ -86,7 +92,7 @@ class HesaSpider(BaseScraper):
                 "alternateName": [],
                 "email": None,
                 "description": None,
-                "organisationType": ["Higher Education", "Universities"],
+                "organisationType": self.org_types.get(cells[4].strip(), cells[4].strip()),
                 "url": None,
                 "location": [],
                 "latestIncome": None,
@@ -96,7 +102,7 @@ class HesaSpider(BaseScraper):
                 "active": True,
                 "parent": None,
                 "orgIDs": orgids,
-                "sources": [self.source["identifier"]],
+                "source": self.source["identifier"],
             })
 
         self.source["modified"] = datetime.datetime.now().isoformat()

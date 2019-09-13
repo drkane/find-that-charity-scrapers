@@ -18,6 +18,8 @@ setup(
         "pyexcel-ezodf==0.3.4",
         "pyexcel-io==0.5.9.1",
         "pyexcel-ods3==0.5.2",
+        "psycopg2==2.8.3",
         "pymongo==3.7.1",
+        "alembic==1.1.0",
     ]
 )

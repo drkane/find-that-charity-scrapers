@@ -88,5 +88,5 @@ class LocalAuthorityScotlandSpider(BaseScraper):
             "active": record.get("end-date") is None,
             "parent": None,
             "orgIDs": org_ids,
-            "sources": [self.source["identifier"]],
+            "source": self.source["identifier"],
         })

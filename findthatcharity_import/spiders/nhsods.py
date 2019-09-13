@@ -168,5 +168,5 @@ class NHSODSSpider(BaseScraper):
             "active": record.get("Close Date") is None,
             "parent": record.get("Parent Organisation Code"),
             "orgIDs": [self.get_org_id(record)],
-            "sources": [self.source["identifier"]],
+            "source": self.source["identifier"],
         })

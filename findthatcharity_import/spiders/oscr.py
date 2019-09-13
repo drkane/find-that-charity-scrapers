@@ -132,5 +132,5 @@ class OSCRSpider(BaseScraper):
             "active": record.get("Charity Status") != "Removed",
             "parent": record.get("Parent Charity Name"), # @TODO: More sophisticated getting of parent charities here
             "orgIDs": org_ids,
-            "sources": [self.source["identifier"]],
+            "source": self.source["identifier"],
         })
