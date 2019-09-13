@@ -17,7 +17,6 @@ class RSLSpider(BaseScraper):
     allowed_domains = ['gov.uk', 'githubusercontent.com']
     start_urls = [
         "https://www.gov.uk/government/publications/current-registered-providers-of-social-housing",
-        "https://raw.githubusercontent.com/drkane/charity-lookups/master/rsp-charity-number.csv",
     ]
     org_id_prefix = "GB-SHPE"
     id_field = "Registration Number"
@@ -43,22 +42,9 @@ class RSLSpider(BaseScraper):
     }
 
     def start_requests(self):
-        return [scrapy.Request(self.start_urls[1], callback=self.download_file)]
-
-    def download_file(self, response):
 
         self.source["distribution"][0]["downloadURL"] = self.start_urls[0]
         self.source["modified"] = datetime.datetime.now().isoformat()
-
-        # set up reg number lookups first
-        self.reg_numbers = {}
-        with io.StringIO(response.text) as a:
-            csvreader = csv.DictReader(a)
-            for row in csvreader:
-                self.reg_numbers[row["RP Code"]] = {
-                    "charity_number": "GB-CHC-{}".format(row["Charity Number"]) if row["Charity Number"] != "" else None,
-                    "company_number": "GB-COH-{}".format(row["Company Number"].zfill(8)) if row["Company Number"] != "" else None,
-                }
 
         return [scrapy.Request(self.start_urls[0], callback=self.find_excel)]
 
@@ -116,10 +102,6 @@ class RSLSpider(BaseScraper):
 
         org_ids = [self.get_org_id(record)]
         locations = []
-        regnos = self.reg_numbers.get(record.get(self.id_field), {})
-        for i in ["company_number", "charity_number"]:
-            if regnos.get(i):
-                org_ids.append(regnos.get(i))
         if record.get("Designation") == "Local Authority":
             la_codes = LA_LOOKUP.get(record.get(self.id_field))
             if la_codes:
@@ -136,8 +118,8 @@ class RSLSpider(BaseScraper):
         return Organisation(**{
             "id": self.get_org_id(record),
             "name": record.get("Organisation Name"),
-            "charityNumber": regnos.get("charity_number"),
-            "companyNumber": regnos.get("company_number"),
+            "charityNumber": None,
+            "companyNumber": None,
             "streetAddress": None,
             "addressLocality": None,
             "addressRegion": None,

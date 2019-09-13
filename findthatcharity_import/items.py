@@ -123,7 +123,7 @@ class Organisation(scrapy.Item):
             "organisation_links": [{
                 "organisation_id_a": self.get("id"),
                 "organisation_id_b": i,
-                "source": self.get("sources")
+                "source": self.get("source")
             } for i in self.get("orgIDs", []) if i and i != self.get("id")],
         }
 
@@ -173,6 +173,26 @@ class Source(scrapy.Item):
 
         return {
             "source": [source],
+        }
+
+class Link(scrapy.Item):
+    """
+    Item representing a data source from the scrapers
+    """
+    organisation_id_a = scrapy.Field()
+    organisation_id_b = scrapy.Field()
+    description = scrapy.Field()
+    source = scrapy.Field()
+
+    def __repr__(self):
+        return '<Link {} and {}>'.format(self.get("organisation_id_a"), self.get("organisation_id_b"))
+
+    def to_tables(self):
+
+        return {
+            "organisation_links": [{
+                c.name: self.get(c.name, None) for c in tables["organisation_links"].columns
+            }],
         }
 
 

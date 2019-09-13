@@ -16,7 +16,6 @@ class CCEWSpider(BaseScraper):
     start_urls = [
         "http://data.charitycommission.gov.uk/",
         "https://raw.githubusercontent.com/drkane/charity-lookups/master/cc-aoo-gss-iso.csv",
-        "https://raw.githubusercontent.com/drkane/charity-lookups/master/cio_company_numbers.csv",
     ]
     org_id_prefix = "GB-CHC"
     id_field = "regno"
@@ -106,7 +105,6 @@ class CCEWSpider(BaseScraper):
 
     def start_requests(self):
         return [
-            scrapy.Request(self.start_urls[2], callback=self.cio_download),
             scrapy.Request(self.start_urls[1], callback=self.download_aoo_ref)
         ]
 
@@ -120,17 +118,6 @@ class CCEWSpider(BaseScraper):
 
         self.logger.info("Imported AOO reference data")
         return scrapy.Request(self.start_urls[0], callback=self.fetch_zip)
-
-    def cio_download(self, response):
-
-        self.cios = {}
-        with io.StringIO(response.text) as a:
-            csvreader = csv.DictReader(a)
-            for row in csvreader:
-                self.cios[row["charity_number"]] = row["company_number"]
-
-        self.logger.info("Imported CIO company numbers")
-        return scrapy.Request(self.start_urls[1], callback=self.download_aoo_ref)
 
     def fetch_zip(self, response):
         link = response.css("a::attr(href)").re_first(self.zip_regex)
@@ -214,7 +201,7 @@ class CCEWSpider(BaseScraper):
                 "id": self.get_org_id(record),
                 "name": self.parse_name(record.get("name")),
                 "charityNumber": record.get("regno"),
-                "companyNumber": self.cios.get(record.get("regno"), coyno),
+                "companyNumber": coyno,
                 "streetAddress": record.get("add1"),
                 "addressLocality": record.get("add2"),
                 "addressRegion": record.get("add3"),

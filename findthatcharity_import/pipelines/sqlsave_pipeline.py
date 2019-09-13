@@ -21,7 +21,7 @@ class SQLSavePipeline(object):
     def from_crawler(cls, crawler):
         return cls(
             db_uri=crawler.settings.get('DB_URI'),
-            chunk_size=int(crawler.settings.get('DB_CHUNK', 1000)),
+            chunk_size=int(crawler.settings.get('DB_CHUNK', 5000)),
         )
 
     def process_item(self, item, spider):

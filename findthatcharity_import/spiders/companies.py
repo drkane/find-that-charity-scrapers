@@ -73,7 +73,7 @@ class CompaniesSpider(BaseScraper):
         "distribution": [
             {
                 "downloadURL": "",
-                "accessURL": "http://www.charitycommissionni.org.uk/charity-search/",
+                "accessURL": "http://download.companieshouse.gov.uk/en_output.html",
                 "title": "Free Company Data Product"
             }
         ],

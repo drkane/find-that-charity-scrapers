@@ -15,7 +15,6 @@ class OSCRSpider(BaseScraper):
     start_urls = [
         "https://www.oscr.org.uk/umbraco/Surface/FormsSurface/CharityRegDownload",
         "https://www.oscr.org.uk/umbraco/Surface/FormsSurface/CharityFormerRegDownload",
-        "https://raw.githubusercontent.com/drkane/charity-lookups/master/dual-registered-uk-charities.csv",
     ]
     org_id_prefix = "GB-SC"
     id_field = "Charity Number"
@@ -47,19 +46,6 @@ class OSCRSpider(BaseScraper):
     }
 
     def start_requests(self):
-        return [scrapy.Request(self.start_urls[2], callback=self.download_dual)]
-
-    def download_dual(self, response):
-
-        self.dual_registered = {}
-        with io.StringIO(response.text) as a:
-            csvreader = csv.DictReader(a)
-            for row in csvreader:
-                regno = row["Scottish Charity Number"].strip()
-                if regno not in self.dual_registered:
-                    self.dual_registered[regno] = []
-                self.dual_registered[regno].append(row["E&W Charity Number"].strip())
-
         return [
             scrapy.Request(self.start_urls[0], callback=self.process_zip),
             scrapy.Request(self.start_urls[1], callback=self.process_zip),
@@ -105,8 +91,6 @@ class OSCRSpider(BaseScraper):
             org_types.append(record.get("Constitutional Form"))
 
         org_ids = [self.get_org_id(record)]
-        for i in self.dual_registered.get(record.get(self.id_field), []):
-            org_ids.append("GB-CHC-{}".format(i))
 
         return Organisation(**{
             "id": self.get_org_id(record),

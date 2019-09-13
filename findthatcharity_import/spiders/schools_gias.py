@@ -26,8 +26,6 @@ class GIASSpider(BaseScraper):
     allowed_domains = ['service.gov.uk', 'ea-edubase-api-prod.azurewebsites.net']
     start_urls = [
         "https://get-information-schools.service.gov.uk/Downloads",
-        "https://raw.githubusercontent.com/drkane/charity-lookups/master/university-royal-charters.csv",
-        "https://raw.githubusercontent.com/drkane/charity-lookups/master/independent-schools-ew.csv",
     ]
     org_id_prefix = "GB-EDU"
     id_field = "URN"
@@ -59,44 +57,7 @@ class GIASSpider(BaseScraper):
                        "ParliamentaryConstituency", "UrbanRural", "MSOA", "LSOA"]
 
     def start_requests(self):
-        return [
-            scrapy.Request(self.start_urls[1], callback=self.uni_lookup),
-            scrapy.Request(self.start_urls[2], callback=self.independent_school_lookup),
-        ]
-
-    def uni_lookup(self, response):
-        """
-        Lookup university <> Royal Charter company number
-        """
-
-        self.unirc = {}
-        with io.StringIO(response.text) as a:
-            csvreader = csv.DictReader(a)
-            for row in csvreader:
-                self.unirc[row["URN"]] = row["CompanyNumber"]
-
-        self.logger.info("Imported University company numbers")
-        return scrapy.Request(self.start_urls[2], callback=self.independent_school_lookup)
-
-    def independent_school_lookup(self, response):
-        """
-        Lookup independent school <> Charity or company number
-        """
-
-        self.indschool = {
-            "char": {},
-            "comp": {},
-        }
-        with io.StringIO(response.text) as a:
-            csvreader = csv.DictReader(a)
-            for row in csvreader:
-                if row["charity_number"]:
-                    self.indschool["char"][row["URN"]] = row["charity_number"]
-                if row["company_number"]:
-                    self.indschool["comp"][row["URN"]] = row["company_number"]
-
-        self.logger.info("Imported Independent school numbers")
-        return scrapy.Request(self.start_urls[0], callback=self.find_csv)
+        return [scrapy.Request(self.start_urls[0], callback=self.find_csv)]
 
     def find_csv(self, response):
         link = response.css("a::attr(href)").re_first(self.gias_regex)
@@ -150,19 +111,6 @@ class GIASSpider(BaseScraper):
                 record.get("LA (code)").rjust(3, "0"),
                 record.get("EstablishmentNumber").rjust(4, "0"),
             ))
-        if record.get("URN") in self.unirc:
-            org_ids.append("GB-COH-{}".format(
-                self.unirc[record.get("URN")],
-            ))
-        if record.get("URN") in self.indschool["char"]:
-            org_ids.append("GB-CHC-{}".format(
-                self.indschool["char"][record.get("URN")],
-            ))
-        # company records seem to produce too many matches
-        # if record.get("URN") in self.indschool["comp"]:
-        #     org_ids.append("GB-COH-{}".format(
-        #         self.indschool["comp"][record.get("URN")],
-        #     ))
 
         return org_ids
 
