@@ -43,7 +43,7 @@ six==1.11.0
 titlecase==0.12.0
 toml==0.9.6
 tqdm==4.26.0
-Twisted==19.2.1
+Twisted==19.7.0
 typed-ast==1.1.0
 urllib3==1.24.2
 validators==0.12.2
