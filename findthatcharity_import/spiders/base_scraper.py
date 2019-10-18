@@ -2,8 +2,11 @@ import io
 import csv
 import datetime
 import re
+import json
+import uuid
 
 import scrapy
+from scrapy.utils.serialize import ScrapyJSONEncoder
 import validators
 import titlecase
 
@@ -260,3 +263,26 @@ class BaseScraper(scrapy.Spider):
 
         # Make sure first letter is capitalise
         return name[0].upper() + name[1:]
+
+    def closed(self, reason):
+        stats = self.crawler.stats.get_stats()
+        to_save = {
+            "id": uuid.uuid4().hex,
+            "spider": self.name,
+            "stats": json.dumps(stats, cls=ScrapyJSONEncoder),
+            "finish_reason": stats.get('finish_reason'),
+            "errors": stats.get('log_count/ERROR', 0),
+            "start_time": stats.get('start_time'),
+            "finish_time": stats.get('finish_time'),
+        }
+        if not self.crawler.settings.get('DB_URI'):
+            return
+
+        from sqlalchemy import create_engine
+        from ..db import tables
+
+        engine = create_engine(self.crawler.settings.get('DB_URI'))
+        conn = engine.connect()
+
+        insert = tables['scrape'].insert(to_save)
+        conn.execute(insert)

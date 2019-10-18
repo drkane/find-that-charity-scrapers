@@ -104,5 +104,4 @@ class SQLSavePipeline(object):
     def close_spider(self, spider):
         if hasattr(self, "conn"):
             self.commit_records(spider)
-
             self.conn.close()

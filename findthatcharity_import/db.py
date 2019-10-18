@@ -107,3 +107,13 @@ tables["identifier"] = Table('identifier', metadata,
     Column("subnationalCoverage", String),
     Column("url", String),
 )
+
+tables["scrape"] = Table('scrape', metadata,
+    Column("id", String, primary_key=True),
+    Column("spider", String),
+    Column("stats", String),
+    Column("finish_reason", String),
+    Column("errors", Integer),
+    Column("start_time", DateTime),
+    Column("finish_time", DateTime),
+)
