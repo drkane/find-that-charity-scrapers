@@ -195,6 +195,68 @@ class Link(scrapy.Item):
             }],
         }
 
+class Identifier(scrapy.Item):
+    """
+    Item representing a entry in the org-id list of identifiers
+    """
+    code = scrapy.Field()
+    description_en = scrapy.Field()
+    License = scrapy.Field()
+    access_availableOnline = scrapy.Field()
+    access_exampleIdentifiers = scrapy.Field()
+    access_guidanceOnLocatingIds = scrapy.Field()
+    access_languages = scrapy.Field()
+    access_onlineAccessDetails = scrapy.Field()
+    access_publicDatabase = scrapy.Field()
+    confirmed = scrapy.Field()
+    coverage = scrapy.Field()
+    data_availability = scrapy.Field()
+    data_dataAccessDetails = scrapy.Field()
+    data_features = scrapy.Field()
+    data_licenseDetails = scrapy.Field()
+    data_licenseStatus = scrapy.Field()
+    deprecated = scrapy.Field()
+    formerPrefixes = scrapy.Field()
+    links_opencorporates = scrapy.Field()
+    links_wikipedia = scrapy.Field()
+    listType = scrapy.Field()
+    meta_lastUpdated = scrapy.Field()
+    meta_source = scrapy.Field()
+    name_en = scrapy.Field()
+    name_local = scrapy.Field()
+    quality = scrapy.Field()
+    quality_explained_Availability_API = scrapy.Field()
+    quality_explained_Availability_BulkDownload = scrapy.Field()
+    quality_explained_Availability_CSVFormat = scrapy.Field()
+    quality_explained_Availability_ExcelFormat = scrapy.Field()
+    quality_explained_Availability_JSONFormat = scrapy.Field()
+    quality_explained_Availability_PDFFormat = scrapy.Field()
+    quality_explained_Availability_RDFFormat = scrapy.Field()
+    quality_explained_Availability_XMLFormat = scrapy.Field()
+    quality_explained_License_ClosedLicense = scrapy.Field()
+    quality_explained_License_NoLicense = scrapy.Field()
+    quality_explained_License_OpenLicense = scrapy.Field()
+    quality_explained_ListType_Local = scrapy.Field()
+    quality_explained_ListType_Primary = scrapy.Field()
+    quality_explained_ListType_Secondary = scrapy.Field()
+    quality_explained_ListType_ThirdParty = scrapy.Field()
+    registerType = scrapy.Field()
+    sector = scrapy.Field()
+    structure = scrapy.Field()
+    subnationalCoverage = scrapy.Field()
+    url = scrapy.Field()
+
+    def __repr__(self):
+        return '<Identifier {}>'.format(self.get("code"))
+
+    def to_tables(self):
+
+        return {
+            "identifier": [{
+                c.name: self.get(c.name, None) for c in tables["identifier"].columns
+            }],
+        }
+
 
 AREA_TYPES = {
     "E00": "OA",

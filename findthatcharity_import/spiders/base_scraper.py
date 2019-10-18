@@ -15,6 +15,7 @@ class BaseScraper(scrapy.Spider):
 
     date_format = DEFAULT_DATE_FORMAT
     date_fields = []
+    bool_fields = []
     encoding = "utf8"
 
     def parse_csv(self, response):
@@ -56,6 +57,15 @@ class BaseScraper(scrapy.Spider):
                         record[f] = datetime.datetime.strptime(record.get(f).strip(), date_format)
                 except ValueError:
                     record[f] = None
+
+            # clean boolean fields
+            elif f in self.bool_fields:
+                if isinstance(record[f], str):
+                    val = record[f].lower().strip()
+                    if val in ['f', 'false', 'no', '0']:
+                        record[f] = False
+                    elif val in ['t', 'true', 'yes', '1']:
+                        record[f] = True
 
             # strip string fields
             elif isinstance(record[f], str):
