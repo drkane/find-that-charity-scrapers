@@ -1,4 +1,4 @@
-name: Python application
+name: Scrape LAE
 
 on: [push]
 
@@ -16,7 +16,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get install python-psycopg2
-        pip install psycopg2-binary
+        sudo apt-get install libpq-dev python3-dev
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: check database upgrade
