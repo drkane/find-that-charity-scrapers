@@ -25,6 +25,7 @@ jobs:
       run: |
         alembic upgrade head
     - name: run scraper
+      env:
+        DB_URI: ${{ secrets.db_uri }}
       run: |
-        echo "$DB_URI"
         scrapy crawl lae -s DB_URI="$DB_URI"
