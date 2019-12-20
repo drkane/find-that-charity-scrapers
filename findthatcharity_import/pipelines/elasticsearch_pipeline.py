@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 import logging
 
-from elasticsearch import Elasticsearch
-from elasticsearch.helpers import bulk
+try:
+    from elasticsearch import Elasticsearch
+    from elasticsearch.helpers import bulk
+except ImportError:
+    pass
 
 class ElasticSearchPipeline():
 
