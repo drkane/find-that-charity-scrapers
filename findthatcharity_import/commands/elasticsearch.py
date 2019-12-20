@@ -1,7 +1,10 @@
 from __future__ import print_function
 import logging
 
-from elasticsearch import Elasticsearch
+try:
+    from elasticsearch import Elasticsearch
+except ImportError:
+    pass
 from scrapy.commands import ScrapyCommand
 
 from ..items import Organisation, Source
