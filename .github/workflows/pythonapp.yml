@@ -26,5 +26,5 @@ jobs:
         alembic upgrade head
     - name: run scraper
       run: |
-        echo ${#DB_URI}
-        scrapy crawl lae -s DB_URI=${#DB_URI}
+        echo "$DB_URI"
+        scrapy crawl lae -s DB_URI="$DB_URI"
