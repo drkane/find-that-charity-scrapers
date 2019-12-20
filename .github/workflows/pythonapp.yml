@@ -1,4 +1,4 @@
-name: Scrape LAE
+name: Scrape government bodies
 
 on: [push]
 
@@ -28,4 +28,20 @@ jobs:
       env:
         DB_URI: ${{ secrets.db_uri }}
       run: |
+        scrapy crawl casc -s DB_URI="$DB_URI"
+        scrapy crawl ccni -s DB_URI="$DB_URI"
+        scrapy crawl gor -s DB_URI="$DB_URI"
+        scrapy crawl grid -s DB_URI="$DB_URI"
+        scrapy crawl hesa -s DB_URI="$DB_URI"
         scrapy crawl lae -s DB_URI="$DB_URI"
+        scrapy crawl lani -s DB_URI="$DB_URI"
+        scrapy crawl las -s DB_URI="$DB_URI"
+        scrapy crawl nhsods -s DB_URI="$DB_URI"
+        scrapy crawl oscr -s DB_URI="$DB_URI"
+        scrapy crawl pla -s DB_URI="$DB_URI"
+        scrapy crawl rsl -s DB_URI="$DB_URI"
+        scrapy crawl schools_gias -s DB_URI="$DB_URI"
+        scrapy crawl schools_ni -s DB_URI="$DB_URI"
+        scrapy crawl schools_scotland -s DB_URI="$DB_URI"
+        scrapy crawl schools_wales -s DB_URI="$DB_URI"
+        scrapy crawl manual_links -s DB_URI="$DB_URI"
