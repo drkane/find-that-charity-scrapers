@@ -51,7 +51,7 @@ class GIASSpider(BaseScraper):
     }
 
     date_format = "%d-%m-%Y"
-    gias_regex = re.compile(r"http://ea-edubase-api-prod.azurewebsites.net/edubase/edubasealldata[0-9]{8}\.csv")
+    gias_regex = re.compile(r"https?://ea-edubase-api-prod.azurewebsites.net/edubase/downloads/public/edubasealldata[0-9]{8}\.csv")
     date_fields = ["OpenDate", "CloseDate"]
     location_fields = ["GOR", "DistrictAdministrative", "AdministrativeWard",
                        "ParliamentaryConstituency", "UrbanRural", "MSOA", "LSOA"]
@@ -61,6 +61,9 @@ class GIASSpider(BaseScraper):
 
     def find_csv(self, response):
         link = response.css("a::attr(href)").re_first(self.gias_regex)
+        if not link:
+            self.logger.error("Link not found")
+            return []
         self.logger.info(link)
         self.source["distribution"][0]["downloadURL"] = link
         self.source["distribution"][0]["accessURL"] = self.start_urls[0]
