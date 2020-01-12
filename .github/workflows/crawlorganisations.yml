@@ -24,37 +24,37 @@ jobs:
     - name: check database upgrade
       run: |
         alembic upgrade head
-    - name: run casc
+    - name: scrape casc
       run: scrapy crawl casc -s DB_URI="$DB_URI"
-    - name: run ccni
+    - name: scrape ccni
       run: scrapy crawl ccni -s DB_URI="$DB_URI"
-    - name: run gor
+    - name: scrape gor
       run: scrapy crawl gor -s DB_URI="$DB_URI"
-    - name: run grid
+    - name: scrape grid
       run: scrapy crawl grid -s DB_URI="$DB_URI"
-    - name: run hesa
+    - name: scrape hesa
       run: scrapy crawl hesa -s DB_URI="$DB_URI"
-    - name: run lae
+    - name: scrape lae
       run: scrapy crawl lae -s DB_URI="$DB_URI"
-    - name: run lani
+    - name: scrape lani
       run: scrapy crawl lani -s DB_URI="$DB_URI"
-    - name: run las
+    - name: scrape las
       run: scrapy crawl las -s DB_URI="$DB_URI"
-    - name: run nhsods
+    - name: scrape nhsods
       run: scrapy crawl nhsods -s DB_URI="$DB_URI"
-    - name: run oscr
+    - name: scrape oscr
       run: scrapy crawl oscr -s DB_URI="$DB_URI"
-    - name: run pla
+    - name: scrape pla
       run: scrapy crawl pla -s DB_URI="$DB_URI"
-    - name: run rsl
+    - name: scrape rsl
       run: scrapy crawl rsl -s DB_URI="$DB_URI"
-    - name: run schools_gias
+    - name: scrape schools_gias
       run: scrapy crawl schools_gias -s DB_URI="$DB_URI"
-    - name: run schools_ni
+    - name: scrape schools_ni
       run: scrapy crawl schools_ni -s DB_URI="$DB_URI"
-    - name: run schools_scotland
+    - name: scrape schools_scotland
       run: scrapy crawl schools_scotland -s DB_URI="$DB_URI"
-    - name: run schools_wales
+    - name: scrape schools_wales
       run: scrapy crawl schools_wales -s DB_URI="$DB_URI"
-    - name: run manual_links
+    - name: scrape manual_links
       run: scrapy crawl manual_links -s DB_URI="$DB_URI"
