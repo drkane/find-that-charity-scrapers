@@ -1,6 +1,6 @@
 name: Crawl Companies House
 
-on: [push]
+on: []
 
 jobs:
   build:

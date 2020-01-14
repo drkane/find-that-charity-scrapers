@@ -1,6 +1,6 @@
 name: Crawl organisations
 
-on: [push]
+on: []
 
 jobs:
   build:
