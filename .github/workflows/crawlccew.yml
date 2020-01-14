@@ -1,6 +1,6 @@
 name: Crawl Charity Commission
 
-on: []
+on: [push]
 
 jobs:
   build:
