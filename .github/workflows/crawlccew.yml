@@ -1,6 +1,8 @@
 name: Crawl Charity Commission
 
-on: [push]
+on:
+  schedule:
+    - cron:  '0 3 * * 0'
 
 jobs:
   build:
