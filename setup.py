@@ -11,7 +11,7 @@ setup(
     install_requires=[
         "alembic==1.3.2",
         "Scrapy==1.8.0",
-        "validators==0.14.1",
+        "validators==0.12.6",
         "titlecase==0.12.0",
         "tqdm==4.41.1",
         "openpyxl==3.0.3",
