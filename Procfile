@@ -1,1 +1,1 @@
-web: cat readme.md
+cron: sleep infinity

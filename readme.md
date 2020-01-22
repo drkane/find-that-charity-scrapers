@@ -124,7 +124,10 @@ SSH into server and run:
 dokku apps:create findthatcharity_scrape
 
 # set up so no checks are run on deploy
-dokku config:set --no-restart findthatcharity_scrape DOKKU_DEFAULT_CHECKS_WAIT=0
+dokku checks:skip findthatcharity_scrape web
+
+# set the DB_URI so that data is saved to the database
+dokku config:set findthatcharity_scrape DB_URI='protocol://user:password@host:db'
 ```
 
 ### 2. Add as a git remote and push
