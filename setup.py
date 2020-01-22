@@ -21,5 +21,10 @@ setup(
         "pyexcel-io==0.5.20",
         "pyexcel-ods3==0.5.3",
         "pymongo==3.10.1",
-    ]
+    ],
+    entry_points={
+        'scrapy': [
+            'settings = findthatcharity_import.settings'
+        ]
+    },
 )
