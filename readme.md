@@ -121,24 +121,10 @@ SSH into server and run:
 
 ```bash
 # create app
-dokku apps:create find-that-charity-scrapers
+dokku apps:create findthatcharity_scrape
 
-# add permanent data storage
-dokku storage:mount find-that-charity-scrapers /var/lib/dokku/data/storage/find-that-charity-scrapers:/scrapyd
-
-# enable domain
-dokku domains:enable find-that-charity-scrapers
-dokku domains:add find-that-charity-scrapers scraper.findthatcharity.uk
-
-# elasticsearch
-# This assumes the elasticsearch instance has already been set up for find-that-charity
-dokku elasticsearch:link find-that-charity-es find-that-charity-scrapers
-
-# SSL
-sudo dokku plugin:install https://github.com/dokku/dokku-letsencrypt.git
-dokku config:set --no-restart find-that-charity-scrapers DOKKU_LETSENCRYPT_EMAIL=your@email.tld
-dokku letsencrypt find-that-charity-scrapers
-dokku letsencrypt:cron-job --add
+# set up so no checks are run on deploy
+dokku config:set --no-restart findthatcharity_scrape DOKKU_DEFAULT_CHECKS_WAIT=0
 ```
 
 ### 2. Add as a git remote and push
@@ -146,7 +132,7 @@ dokku letsencrypt:cron-job --add
 On local machine:
 
 ```bash
-git remote add dokku dokku@SERVER_HOST:find-that-charity-scrapers
+git remote add dokku dokku@SERVER_HOST:findthatcharity_scrape
 git push dokku master
 ```
 
