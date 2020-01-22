@@ -123,6 +123,9 @@ SSH into server and run:
 # create app
 dokku apps:create findthatcharity_scrape
 
+# scale the cron container
+dokku ps:scale findthatcharity_scrape cron=1
+
 # set up so no checks are run on deploy
 dokku checks:skip findthatcharity_scrape web
 
