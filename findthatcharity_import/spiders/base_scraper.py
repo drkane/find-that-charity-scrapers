@@ -266,12 +266,18 @@ class BaseScraper(scrapy.Spider):
 
     def closed(self, reason):
         stats = self.crawler.stats.get_stats()
+
+        status = stats.get('finish_reason')
+        if stats.get('log_count/ERROR', 0) > 0 or stats.get('item_scraped_count', 0) == 0:
+            status = "errors"
+
         to_save = {
             "id": uuid.uuid4().hex,
             "spider": self.name,
             "stats": json.dumps(stats, cls=ScrapyJSONEncoder),
-            "finish_reason": stats.get('finish_reason'),
+            "finish_reason": status,
             "errors": stats.get('log_count/ERROR', 0),
+            "items": stats.get('item_scraped_count', 0),
             "start_time": stats.get('start_time'),
             "finish_time": stats.get('finish_time'),
         }
