@@ -11,4 +11,4 @@ pyexcel-ezodf==0.3.4
 pyexcel-io==0.5.20
 pyexcel-ods3==0.5.3
 pymongo==3.10.1
-git+git://github.com/drkane/bcp-reader.git#egg=bcp-reader
+bcp-reader==0.1.1
