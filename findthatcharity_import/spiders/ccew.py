@@ -4,6 +4,7 @@ import io
 import csv
 import zipfile
 import re
+import bcp
 
 import scrapy
 
@@ -12,6 +13,9 @@ from ..items import Organisation, Source, AREA_TYPES
 
 class CCEWSpider(BaseScraper):
     name = 'ccew'
+    custom_settings = {
+        'DOWNLOAD_TIMEOUT': 180 * 3
+    }
     allowed_domains = ['charitycommission.gov.uk']
     start_urls = [
         "http://data.charitycommission.gov.uk/",
@@ -136,35 +140,34 @@ class CCEWSpider(BaseScraper):
                     self.logger.debug("Skipping: {}".format(f.filename))
                     continue
                 self.logger.info("Opening: {}".format(f.filename))
-                with z.open(f) as csvfile:
-                    self.process_csv(
-                        self.convert_bcp(csvfile.read().decode("latin1")),
+                with z.open(f) as bcpfile:
+                    self.process_bcp(
+                        io.TextIOWrapper(bcpfile, encoding='latin1'),
                         filename
                     )
         return self.process_charities()
 
-    def process_csv(self, csv_text, filename):
+    def process_bcp(self, bcpfile, filename):
 
         fields = self.ccew_files.get(filename)
         self.date_fields = [f for f in fields if f.endswith("date")]
 
-        with io.StringIO(csv_text) as a:
-            csvreader = csv.DictReader(a, fieldnames=fields, escapechar="\\")
-            for k, row in enumerate(csvreader):
-                if self.settings.getbool("DEBUG_ENABLED") and k > 100: #self.settings.getint("DEBUG_ROWS", 100):
-                    break
-                row = self.clean_fields(row)
-                if not row.get("regno"):
-                    continue
-                if row["regno"] not in self.charities:
-                    self.charities[row["regno"]] = {
-                        f: [] for f in self.ccew_files.keys()
-                    }
-                if (filename in ["extract_main_charity", "extract_charity"] and row.get("subno", '0') == '0'):
-                    for field in row:
-                        self.charities[row["regno"]][field] = row[field]
-                else:
-                    self.charities[row["regno"]][filename].append(row)
+        bcpreader = bcp.DictReader(bcpfile, fieldnames=fields)
+        for k, row in enumerate(bcpreader):
+            if self.settings.getbool("DEBUG_ENABLED") and k > 100: #self.settings.getint("DEBUG_ROWS", 100):
+                break
+            row = self.clean_fields(row)
+            if not row.get("regno"):
+                continue
+            if row["regno"] not in self.charities:
+                self.charities[row["regno"]] = {
+                    f: [] for f in self.ccew_files.keys()
+                }
+            if (filename in ["extract_main_charity", "extract_charity"] and row.get("subno", '0') == '0'):
+                for field in row:
+                    self.charities[row["regno"]][field] = row[field]
+            else:
+                self.charities[row["regno"]][filename].append(row)
 
     def process_charities(self):
         yield Source(**self.source)
@@ -268,15 +271,3 @@ class CCEWSpider(BaseScraper):
             if o.get("subno") == '0' and isinstance(o['object'], str):
                 objects.append(re.sub("[0-9]{4}$", "", o['object']))
         return ''.join(objects)
-
-    def convert_bcp(self, bcpdata, lineterminator='*@@*', delimiter='@**@', quote='"', newdelimiter=',', escapechar='\\', newline='\n'):
-        """
-        returns data from a string of BCP data. Default is to present as CSV data.
-        """
-        bcpdata = bcpdata.replace(escapechar, escapechar + escapechar)
-        bcpdata = bcpdata.replace(quote, escapechar + quote)
-        bcpdata = bcpdata.replace(delimiter, quote + newdelimiter + quote)
-        bcpdata = bcpdata.replace(lineterminator, quote + newline + quote)
-        bcpdata = bcpdata.replace('\0', '') # remove null characters
-        bcpdata = quote + bcpdata + quote
-        return bcpdata
