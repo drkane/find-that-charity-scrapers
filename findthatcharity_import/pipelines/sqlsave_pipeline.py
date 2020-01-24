@@ -7,6 +7,7 @@ from sqlalchemy.sql.expression import insert
 from sqlalchemy.dialects import postgresql, mysql
 from ..db import metadata, tables
 import scrapy
+from scrapy import signals
 from scrapy.utils.serialize import ScrapyJSONEncoder
 import logging
 import uuid
@@ -25,11 +26,13 @@ class SQLSavePipeline(object):
 
     @classmethod
     def from_crawler(cls, crawler):
-        return cls(
+        pipeline = cls(
             db_uri=crawler.settings.get('DB_URI'),
             chunk_size=int(crawler.settings.get('DB_CHUNK', 5000)),
             stats=crawler.stats,
         )
+        crawler.signals.connect(pipeline.spider_closed, signal=signals.spider_closed)
+        return pipeline
 
     def process_item(self, item, spider):
         if hasattr(self, "conn"):
@@ -111,7 +114,7 @@ class SQLSavePipeline(object):
 
             self.commit_records(spider)
 
-    def close_spider(self, spider):
+    def spider_closed(self, spider, reason):
         if hasattr(self, "conn"):
             self.commit_records(spider)
             self.conn.close()
