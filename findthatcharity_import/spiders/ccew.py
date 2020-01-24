@@ -6,8 +6,10 @@ import zipfile
 import re
 import bcp
 import tempfile
+import os
 
 import scrapy
+import tqdm
 
 from .base_scraper import BaseScraper
 from ..items import Organisation, Source, AREA_TYPES
@@ -134,23 +136,31 @@ class CCEWSpider(BaseScraper):
     def process_zip(self, response):
         self.logger.info("File size: {}".format(len(response.body)))
         self.charities = {}
-        cczip = tempfile.TemporaryFile()
-        cczip.write(response.body)
-        cczip.seek(0)
+        
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            cczip_name = os.path.join(tmpdirname, 'ccew.zip')
+            files = {}
 
-        with zipfile.ZipFile(cczip) as z:
-            for f in z.infolist():
-                filename = f.filename.replace(".bcp", "")
-                if filename not in self.ccew_files.keys():
-                    self.logger.debug("Skipping: {}".format(f.filename))
-                    continue
-                self.logger.info("Opening: {}".format(f.filename))
-                with z.open(f) as bcpfile:
-                    self.process_bcp(
-                        io.TextIOWrapper(bcpfile, encoding='latin1'),
-                        filename
-                    )
-        cczip.close()
+            with open(cczip_name, 'wb') as cczip:
+                self.logger.info("Saving ZIP to disk")
+                cczip.write(response.body)
+
+            with zipfile.ZipFile(cczip_name, 'r') as z:
+                for f in z.infolist():
+                    filename = f.filename.replace(".bcp", "")
+                    filepath = os.path.join(tmpdirname, f.filename)
+                    if filename not in self.ccew_files.keys():
+                        self.logger.debug("Skipping: {}".format(f.filename))
+                        continue
+                    self.logger.info("Saving {} to disk".format(f.filename))
+                    z.extract(f, path=tmpdirname)
+                    files[filename] = filepath
+
+            for filename, filepath in files.items():
+                with open(filepath, 'r', encoding='latin1') as bcpfile:
+                    self.logger.info("Processing: {}".format(filename))
+                    self.process_bcp(bcpfile, filename)
+
         return self.process_charities()
 
     def process_bcp(self, bcpfile, filename):
@@ -159,7 +169,7 @@ class CCEWSpider(BaseScraper):
         self.date_fields = [f for f in fields if f.endswith("date")]
 
         bcpreader = bcp.DictReader(bcpfile, fieldnames=fields)
-        for k, row in enumerate(bcpreader):
+        for k, row in tqdm.tqdm(enumerate(bcpreader)):
             if self.settings.getbool("DEBUG_ENABLED") and k > 100: #self.settings.getint("DEBUG_ROWS", 100):
                 break
             row = self.clean_fields(row)
