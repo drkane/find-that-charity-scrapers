@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
 import json
+import logging
+import uuid
+import datetime
+
 from sqlalchemy import create_engine, and_
 from sqlalchemy.exc import InternalError, IntegrityError
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.expression import insert
 from sqlalchemy.dialects import postgresql, mysql
-from ..db import metadata, tables
 import scrapy
 from scrapy import signals
 from scrapy.utils.serialize import ScrapyJSONEncoder
-import logging
-import uuid
+
+from ..db import metadata, tables
 
 class SQLSavePipeline(object):
 
@@ -135,7 +138,7 @@ class SQLSavePipeline(object):
             "finish_reason": status,
             "errors": stats.get('log_count/ERROR', 0),
             "items": stats.get('item_scraped_count', 0),
-            "start_time": stats.get('start_time'),
+            "start_time": stats.get('start_time', datetime.datetime.utcnow()),
             "finish_time": stats.get('finish_time'),
         }
         self.records['scrape'].append(to_save)
