@@ -121,16 +121,16 @@ SSH into server and run:
 
 ```bash
 # create app
-dokku apps:create findthatcharity_scrape
+dokku apps:create ftc-scrapers
 
 # scale the cron container
-dokku ps:scale findthatcharity_scrape cron=1
+dokku ps:scale ftc-scrapers cron=1
 
 # set up so no checks are run on deploy
-dokku checks:skip findthatcharity_scrape web
+dokku checks:skip ftc-scrapers web
 
 # set the DB_URI so that data is saved to the database
-dokku config:set findthatcharity_scrape DB_URI='protocol://user:password@host:db'
+dokku config:set ftc-scrapers DB_URI='protocol://user:password@host:db'
 ```
 
 ### 2. Add as a git remote and push
@@ -138,7 +138,7 @@ dokku config:set findthatcharity_scrape DB_URI='protocol://user:password@host:db
 On local machine:
 
 ```bash
-git remote add dokku dokku@SERVER_HOST:findthatcharity_scrape
+git remote add dokku dokku@SERVER_HOST:ftc-scrapers
 git push dokku master
 ```
 
