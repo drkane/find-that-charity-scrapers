@@ -22,6 +22,7 @@ setup(
         "pyexcel-io==0.5.20",
         "pyexcel-ods3==0.5.3",
         "pymongo==3.10.1",
+        "redis==3.3.11",
         "bcp-reader==0.1.1",
     ],
     entry_points={

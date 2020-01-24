@@ -7,9 +7,11 @@ import re
 import bcp
 import tempfile
 import os
+import pickle
 
 import scrapy
 import tqdm
+import redis
 
 from .base_scraper import BaseScraper
 from ..items import Organisation, Source, AREA_TYPES
@@ -17,7 +19,8 @@ from ..items import Organisation, Source, AREA_TYPES
 class CCEWSpider(BaseScraper):
     name = 'ccew'
     custom_settings = {
-        'DOWNLOAD_TIMEOUT': 180 * 3
+        'DOWNLOAD_TIMEOUT': 180 * 3,
+        'REDIS_URL': os.environ.get('REDIS_URL'),
     }
     allowed_domains = ['charitycommission.gov.uk']
     start_urls = [
@@ -111,6 +114,10 @@ class CCEWSpider(BaseScraper):
     }
 
     def start_requests(self):
+        if self.settings.get('REDIS_URL'):
+            self.redis = redis.StrictRedis.from_url(self.settings.get('REDIS_URL'))
+        else:
+            self.redis = None
         return [
             scrapy.Request(self.start_urls[1], callback=self.download_aoo_ref)
         ]
@@ -135,7 +142,7 @@ class CCEWSpider(BaseScraper):
 
     def process_zip(self, response):
         self.logger.info("File size: {}".format(len(response.body)))
-        self.charities = {}
+        self.initialise_charities()
         
         with tempfile.TemporaryDirectory() as tmpdirname:
             cczip_name = os.path.join(tmpdirname, 'ccew.zip')
@@ -175,20 +182,45 @@ class CCEWSpider(BaseScraper):
             row = self.clean_fields(row)
             if not row.get("regno"):
                 continue
-            if row["regno"] not in self.charities:
-                self.charities[row["regno"]] = {
+            charity = self.get_charity(row['regno'])
+            if not charity:
+                charity = {
                     f: [] for f in self.ccew_files.keys()
                 }
             if (filename in ["extract_main_charity", "extract_charity"] and row.get("subno", '0') == '0'):
                 for field in row:
-                    self.charities[row["regno"]][field] = row[field]
+                    charity[field] = row[field]
             else:
-                self.charities[row["regno"]][filename].append(row)
+                charity[filename].append(row)
+            self.set_charity(row['regno'], charity)
+
+    def initialise_charities(self):
+        if self.redis:
+            return self.redis.delete('charities')
+        self.charities = {}
+
+    def get_charity(self, regno):
+        if self.redis:
+            charity = self.redis.hget('charities', regno)
+            return pickle.loads(charity) if charity else charity
+        return self.charities.get(regno)
+
+    def set_charity(self, regno, charity):
+        if self.redis:
+            return self.redis.hset('charities', regno, pickle.dumps(charity))
+        self.charities[regno] = charity
+
+    def get_all_charities(self):
+        if self.redis:
+            for regno, charity in self.redis.hscan_iter('charities'):
+                yield (regno, pickle.loads(charity))
+        else:
+            return self.charities.items()
 
     def process_charities(self):
         yield Source(**self.source)
         
-        for regno, record in self.charities.items():
+        for regno, record in self.get_all_charities():
 
             # helps with debugging - shouldn't normally be empty
             record["regno"] = regno
