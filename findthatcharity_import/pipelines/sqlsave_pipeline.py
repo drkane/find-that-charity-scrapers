@@ -1,18 +1,24 @@
 # -*- coding: utf-8 -*-
+import json
 from sqlalchemy import create_engine, and_
 from sqlalchemy.exc import InternalError, IntegrityError
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.expression import insert
 from sqlalchemy.dialects import postgresql, mysql
 from ..db import metadata, tables
-import scrapy 
+import scrapy
+from scrapy.utils.serialize import ScrapyJSONEncoder
 import logging
+import uuid
 
 class SQLSavePipeline(object):
 
-    def __init__(self, db_uri, chunk_size):
+    def __init__(self, db_uri, chunk_size, stats):
         self.db_uri = db_uri
         self.chunk_size = chunk_size
+        self.stats = stats
+        self.spider_name = None
+        self.crawl_id = uuid.uuid4().hex
         
         # logging.basicConfig()
         # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
@@ -22,6 +28,7 @@ class SQLSavePipeline(object):
         return cls(
             db_uri=crawler.settings.get('DB_URI'),
             chunk_size=int(crawler.settings.get('DB_CHUNK', 5000)),
+            stats=crawler.stats,
         )
 
     def process_item(self, item, spider):
@@ -41,6 +48,7 @@ class SQLSavePipeline(object):
 
     def commit_records(self, spider):
         spider.logger.info("Commiting {} records".format(getattr(self, "record_count", 0)))
+        self.save_stats()
         
         for t in getattr(self, "records", {}):
             table = self.tables[t]
@@ -76,11 +84,13 @@ class SQLSavePipeline(object):
 
 
     def open_spider(self, spider):
+        self.spider_name = spider.name
         if self.db_uri:
             self.engine = create_engine(self.db_uri)
             self.conn = self.engine.connect()
 
             self.tables = {t.name: t for t in tables.values()}
+            self.records = {t: [] for t in self.tables}
             metadata.create_all(self.engine)
 
             # do any tasks before the spider is run
@@ -105,3 +115,24 @@ class SQLSavePipeline(object):
         if hasattr(self, "conn"):
             self.commit_records(spider)
             self.conn.close()
+
+    def save_stats(self):
+        stats = self.stats.get_stats()
+
+        status = stats.get('finish_reason')
+        if not stats.get('finish_time'):
+            status = 'in_progress'
+        elif stats.get('log_count/ERROR', 0) > 0 or stats.get('item_scraped_count', 0) == 0:
+            status = "errors"
+
+        to_save = {
+            "id": self.crawl_id,
+            "spider": self.spider_name,
+            "stats": json.dumps(stats, cls=ScrapyJSONEncoder),
+            "finish_reason": status,
+            "errors": stats.get('log_count/ERROR', 0),
+            "items": stats.get('item_scraped_count', 0),
+            "start_time": stats.get('start_time'),
+            "finish_time": stats.get('finish_time'),
+        }
+        self.records['scrape'].append(to_save)
