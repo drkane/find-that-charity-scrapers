@@ -105,12 +105,12 @@ class CCEWSpider(BaseScraper):
             "welsh", # 	    char(1) 	    Flag: Y or blank
             "master", # 	integer 	    may be blank. If aootype=D then holds continent; if aootype=B then holds GLA/met county
         ],
-        # 'extract_objects': [
-        #     "regno",  # 	integer 	    egistered number of a charity
-        #     "subno",  # 	integer 	    ubsidiary number of a charity (may be 0 for main/group charity)
-        #     "seqno",  # 	char(4) 	    equence number (in practice 0-20)
-        #     "object", #  	varchar(255) 	Description of objects of a charity
-        # ],
+        'extract_objects': [
+            "regno",  # 	integer 	    registered number of a charity
+            "subno",  # 	integer 	    subsidiary number of a charity (may be 0 for main/group charity)
+            "seqno",  # 	char(4) 	    sequence number (in practice 0-20)
+            "object", #  	varchar(255) 	Description of objects of a charity
+        ],
     }
 
     def start_requests(self):
@@ -183,10 +183,6 @@ class CCEWSpider(BaseScraper):
             if not row.get("regno"):
                 continue
             charity = self.get_charity(row['regno'])
-            if not charity:
-                charity = {
-                    f: [] for f in self.ccew_files.keys()
-                }
             if (filename in ["extract_main_charity", "extract_charity"] and row.get("subno", '0') == '0'):
                 for field in row:
                     charity[field] = row[field]
@@ -202,8 +198,8 @@ class CCEWSpider(BaseScraper):
     def get_charity(self, regno):
         if self.redis:
             charity = self.redis.hget('charities', regno)
-            return pickle.loads(charity) if charity else charity
-        return self.charities.get(regno)
+            return pickle.loads(charity) if charity else {f: [] for f in self.ccew_files.keys()}
+        return self.charities.get(regno, {f: [] for f in self.ccew_files.keys()})
 
     def set_charity(self, regno, charity):
         if self.redis:
