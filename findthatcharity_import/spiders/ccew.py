@@ -5,6 +5,7 @@ import csv
 import zipfile
 import re
 import bcp
+import tempfile
 
 import scrapy
 
@@ -133,7 +134,11 @@ class CCEWSpider(BaseScraper):
     def process_zip(self, response):
         self.logger.info("File size: {}".format(len(response.body)))
         self.charities = {}
-        with zipfile.ZipFile(io.BytesIO(response.body)) as z:
+        cczip = tempfile.TemporaryFile()
+        cczip.write(response.body)
+        cczip.seek(0)
+
+        with zipfile.ZipFile(cczip) as z:
             for f in z.infolist():
                 filename = f.filename.replace(".bcp", "")
                 if filename not in self.ccew_files.keys():
@@ -145,6 +150,7 @@ class CCEWSpider(BaseScraper):
                         io.TextIOWrapper(bcpfile, encoding='latin1'),
                         filename
                     )
+        cczip.close()
         return self.process_charities()
 
     def process_bcp(self, bcpfile, filename):
