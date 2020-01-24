@@ -69,7 +69,7 @@ class BaseScraper(scrapy.Spider):
 
             # strip string fields
             elif isinstance(record[f], str):
-                record[f] = record[f].strip()
+                record[f] = record[f].strip().replace('\x00', '')
         return record
 
     def slugify(self, value):
