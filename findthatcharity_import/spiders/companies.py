@@ -15,7 +15,7 @@ class CompaniesSpider(BaseScraper):
     name = 'companies'
     allowed_domains = ['companieshouse.gov.uk']
     start_urls = ["http://download.companieshouse.gov.uk/en_output.html"]
-    zip_regex = re.compile(r"BasicCompanyDataAsOneFile.*\.zip")
+    zip_regex = re.compile(r"BasicCompanyData-.*\.zip")
     org_id_prefix = "GB-COH"
     clg_types = [
         "PRI/LBG/NSC (Private, Limited by guarantee, no share capital, use of 'Limited' exemption)",
@@ -84,13 +84,18 @@ class CompaniesSpider(BaseScraper):
         return [scrapy.Request(self.start_urls[0], callback=self.fetch_zip)]
 
     def fetch_zip(self, response):
-        link = response.css("a::attr(href)").re_first(self.zip_regex)
-
-        self.source["distribution"][0]["accessURL"] = self.start_urls[0]
-        self.source["distribution"][0]["downloadURL"] = response.urljoin(link)
         self.source["modified"] = datetime.datetime.now().isoformat()
+        links = []
+        for i, link in enumerate(response.css("a::attr(href)").re(self.zip_regex)):
 
-        return [scrapy.Request(response.urljoin(link), callback=self.process_zip)]
+            self.source["distribution"][i] = {
+                "accessURL": self.start_urls[0],
+                "downloadURL": response.urljoin(link),
+                "title": "Free Company Data Product",
+            }
+
+            links.append(scrapy.Request(response.urljoin(link), callback=self.process_zip))
+        return links
 
     def process_zip(self, response):
         yield Source(**self.source)
