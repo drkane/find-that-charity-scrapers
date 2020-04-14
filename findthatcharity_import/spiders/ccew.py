@@ -209,7 +209,7 @@ class CCEWSpider(BaseScraper):
     def get_all_charities(self):
         if self.redis:
             for regno, charity in self.redis.hscan_iter('charities'):
-                yield (regno, pickle.loads(charity))
+                yield (regno.decode(), pickle.loads(charity))
         else:
             return self.charities.items()
 
