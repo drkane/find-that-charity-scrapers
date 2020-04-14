@@ -1,18 +1,22 @@
 # find-that-charity-scrapers
 
-A collection of scrapers used to add data to <https://findthatcharity.uk/>. The scrapers use [scrapy](https://scrapy.org/) and can currently save data to either an
-elasticsearch index or mongodb database.
+A collection of scrapers used to add data to <https://findthatcharity.uk/>.
+The scrapers use [scrapy](https://scrapy.org/) and can currently save data to
+an SQL database (designed for postgres), an elasticsearch index or mongodb 
+database.
 
 The standard format is based on the `Organization` object described in the
 [threesixtygiving data standard](http://standard.threesixtygiving.org/en/latest/_static/docson/index.html#../360-giving-schema.json$$expand).
 
 ## Spiders
 
-Each spider (a particular part of the scraper) looks at a particular type of organisation (in the UK), and aims to transform
-a register of that type of organisation into a standard format that can be saved
-to the database powering findthatcharity.
+Each spider (a particular part of the scraper) looks at a particular type of
+organisation (in the UK), and aims to transform a register of that type of 
+organisation into a standard format that can be saved to the database powering 
+findthatcharity.
 
-The spiders are all designed to be run without human import and should fetch consistent data.
+The spiders are all designed to be run without human import and should fetch
+consistent data.
 
 The spiders are found in the `/findthatcharity_import/spiders` directory and cover:
 
@@ -26,7 +30,7 @@ The spiders are found in the `/findthatcharity_import/spiders` directory and cov
  - `grid`: Entries from the [Global Research Identifier Database](https://www.grid.ac/) - only those that are based in the UK and are not a registered company are included.
  - `hesa`: Organisations covered by the Higher Education Statistics Agency.
  - `lae`: Register of local authorities in England
- - `lan`: Register of local authorities in Northern Ireland
+ - `lani`: Register of local authorities in Northern Ireland
  - `las`: Register of local authorities in Scotland
  - `pla`: Register of principal local authorities in Wales
  - `nhsods`: NHS organisations
@@ -36,9 +40,14 @@ The spiders are found in the `/findthatcharity_import/spiders` directory and cov
  - `schools_scotland`: Schools in Scotland
  - `schools_wales`: Schools in Wales
 
+There is also a scraper for a set of files that link data together, hosted
+at <https://github.com/drkane/charity-lookups> and one that pulls data from
+the [org-id](https://org-id.guide/) register of identifier schemes.
+
 ### Running a scraper
 
-If you have [scrapy](https://scrapy.org/) installed then you can run an individual scraper using:
+If you have [scrapy](https://scrapy.org/) installed then you can run an
+individual scraper using:
 
 ```bash
 scrapy crawl <spiderid>
@@ -50,6 +59,15 @@ For example to crawl charities in England and Wales you would run:
 scrapy crawl ccew
 ```
 
+### Running all scrapers
+
+This will run all scrapers, using the `DB_URI` environmental variable
+to save to an SQL database.
+
+```bash
+sh ./crawl_all.sh
+```
+
 ## Pipelines
 
 The code comes with two specialist pipelines to add the data to a database, plus one to add postcode data.
@@ -57,7 +75,35 @@ The code comes with two specialist pipelines to add the data to a database, plus
 Pipelines come with their own settings ([see scrapy docs for how to use these](https://docs.scrapy.org/en/latest/topics/settings.html#populating-the-settings)) 
 and need to be [activated in the `ITEM_PIPELINES` setting](https://docs.scrapy.org/en/latest/topics/item-pipeline.html#activating-an-item-pipeline-component).
 
-### Add postcode data
+### SQL pipeline
+
+This pipeline saves data to an SQL database. It has been designed for use with 
+postgres, but uses SQLAlchemy to save data so could be used with other database
+engines.
+
+The database schema is found in <findthatcharity_import/db.py> and can be managed
+using [alembic](https://alembic.sqlalchemy.org/en/latest/). The tables used are:
+
+- `organisation`: holds details about the organisations scraped.
+- `source`: data sources
+- `organisation_links`: a table of links between different organisations
+- `identifier`: a list of identifiers from [org-id](https://org-id.guide).
+- `scrape`: contains details of individual scraping runs.
+
+To create the database with alembic set the database connection as an environment
+variable `DB_URI` and then run `alembic upgrade head`.
+
+To save a scraping run to the database, you need to include the DB_URI as a setting.
+For example:
+
+```sh
+scrapy crawl ccew -s DB_URI="postgres://postgres:postgres@localhost/ftc"
+
+# or using the preset environmental variable
+scrapy crawl ccew -s DB_URI="$DB_URI"
+```
+
+### Add postcode data (deprecated)
 
 The pipeline found in `pipelines/postcode_lookup_pipeline.py` uses <https://postcodes.findthatcharity.uk/> to lookup data about an organisation's postcode and add the data to the organisation's `location` attribute.
 
@@ -75,7 +121,7 @@ The following settings are available for this pipeline:
 - `PC_FIELD`: The field in the `Organisation` Item that contains the postcode. (Default: `postalCode`)
 - `PC_FIELDS_TO_ADD`: The area types that will be added to the item based on the postcode. NB in addition to this the lat/long is always added if present. (Default `['cty', 'laua', 'ward', 'ctry', 'rgn', 'gor', 'pcon', 'ttwa', 'lsoa11', 'msoa11']`)
 
-### Elasticsearch pipeline
+### Elasticsearch pipeline (deprecated)
 
 This pipeline saves data to an elasticsearch index. It is generic, so will work on any object that defines an `id` attribute, but the object returned can be customised by adding a `to_elasticsearch` method to the Item object.
 
@@ -95,7 +141,7 @@ The following settings can be defined:
 - `ES_TYPE`: The elasticsearch type that will be given to the organisation (Default `organisation`)
 - `ES_BULK_LIMIT`: The chunk size used for sending data to elasticsearch (Default `500`)
 
-### MongoDB pipeline
+### MongoDB pipeline (deprecated)
 
 This pipeline is very similar to the elasticsearch one, but instead saves data to a MongoDB instance. It saves records in bulk, and will overwrite any existing records with the same ID.
 
@@ -108,7 +154,7 @@ The following settings are defined:
 - `MONGO_COLLECTION`: The default name of the MongoDB collection (only used if not returned by `item.to_mongodb()`) (Default `organisation`)
 - `MONGO_BULK_LIMIT`: The chunk size used for sending data to mongoDB (Default `50000`)
 
-## Deploying with Scrapyd
+## Deploying with dokku
 
 A dockerfile has been included ([source from here](https://github.com/cdrx/scrapyd-authenticated))
 which enables use as a dokku or other hosting service server.
