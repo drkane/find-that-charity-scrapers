@@ -70,13 +70,7 @@ class CompaniesSpider(BaseScraper):
             "name": "Companies House",
             "website": "https://www.gov.uk/government/organisations/companies-house",
         },
-        "distribution": [
-            {
-                "downloadURL": "",
-                "accessURL": "http://download.companieshouse.gov.uk/en_output.html",
-                "title": "Free Company Data Product"
-            }
-        ],
+        "distribution": [],
     }
 
     def start_requests(self):
@@ -88,11 +82,11 @@ class CompaniesSpider(BaseScraper):
         links = []
         for i, link in enumerate(response.css("a::attr(href)").re(self.zip_regex)):
 
-            self.source["distribution"][i] = {
+            self.source["distribution"].append({
                 "accessURL": self.start_urls[0],
                 "downloadURL": response.urljoin(link),
                 "title": "Free Company Data Product",
-            }
+            })
 
             links.append(scrapy.Request(response.urljoin(link), callback=self.process_zip))
         return links
