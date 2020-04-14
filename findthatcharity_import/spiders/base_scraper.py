@@ -81,10 +81,13 @@ class BaseScraper(scrapy.Spider):
     def parse_company_number(self, coyno):
         if not coyno:
             return None
+            
+        coyno = coyno.lstrip('0')
 
         coyno = coyno.strip()
         if coyno == "":
             return None
+        
 
         if coyno.isdigit():
             return coyno.rjust(8, "0")
