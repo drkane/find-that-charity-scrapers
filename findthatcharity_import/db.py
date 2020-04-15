@@ -36,6 +36,8 @@ tables["organisation"] = Table('organisation', metadata,
     Column("organisationType", JSON),
     Column("organisationTypePrimary", String),
     Column("source", String),
+    Column("spider", String),
+    Column("scrape_id", String),
 )
 
 tables["source"] = Table('source', metadata,
@@ -56,6 +58,8 @@ tables["organisation_links"] = Table('organisation_links', metadata,
     Column('organisation_id_b', String, primary_key = True),
     Column('description', String),
     Column('source', String),
+    Column("spider", String),
+    Column("scrape_id", String),
 )
 
 

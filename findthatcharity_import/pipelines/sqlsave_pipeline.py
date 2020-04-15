@@ -7,7 +7,7 @@ import datetime
 from sqlalchemy import create_engine, and_
 from sqlalchemy.exc import InternalError, IntegrityError
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.sql.expression import insert
+from sqlalchemy.sql.expression import insert, delete
 from sqlalchemy.dialects import postgresql, mysql
 import scrapy
 from scrapy import signals
@@ -77,6 +77,11 @@ class SQLSavePipeline(object):
                 upsert_statement = insert(table).prefix_with("OR REPLACE")
                     
             for r in self.records[t]:
+                if "scrape_id" in cols:
+                    r['scrape_id'] = self.crawl_id
+                if "spider" in cols:
+                    r['spider'] = self.spider_name
+
                 if self.engine.name == 'postgresql':
                     vals.append({c: r.get(c) for c in cols})
                 else:
@@ -93,11 +98,23 @@ class SQLSavePipeline(object):
         self.spider_name = spider.name
         if self.db_uri:
             self.engine = create_engine(self.db_uri)
-            self.conn = self.engine.connect()
+            Session = sessionmaker(bind=self.engine)
+            self.conn = Session()
 
             self.tables = {t.name: t for t in tables.values()}
             self.records = {t: [] for t in self.tables}
             metadata.create_all(self.engine)
+
+            # delete any existing records from the tables
+            for t, table in self.tables.items():
+                cols = [c.name for c in table.columns]
+                if "scrape_id" in cols and "spider" in cols:
+                    self.conn.execute(
+                        delete(table).where(and_(
+                            table.c.scrape_id != self.crawl_id,
+                            table.c.spider == self.spider_name
+                        ))
+                    )
 
             # do any tasks before the spider is run
             # if hasattr(spider, "name"):
@@ -120,6 +137,7 @@ class SQLSavePipeline(object):
     def spider_closed(self, spider, reason):
         if hasattr(self, "conn"):
             self.commit_records(spider)
+            self.conn.commit()
             self.conn.close()
 
     def save_stats(self):
