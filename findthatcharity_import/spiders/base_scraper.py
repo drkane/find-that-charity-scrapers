@@ -89,7 +89,7 @@ class BaseScraper(scrapy.Spider):
             return None
 
         # dummy company number sometimes used
-        if coyno.rjust(8. "0") in ('01234567', '12345678'):
+        if coyno.rjust(8, "0") in ('01234567', '12345678'):
             return None
 
         if coyno.isdigit():
