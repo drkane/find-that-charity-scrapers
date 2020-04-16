@@ -14,7 +14,6 @@ SHELL=/bin/bash
 
 ### PLACE ALL CRON TASKS BELOW
 
-# removes unresponsive users from the subscriber list to decrease bounce rates
-23 2 * * 0 dokku dokku --rm enter findthatcharity_scrape sh ./scrape_all.sh
+23 2 * * 0 dokku dokku --rm enter ftc-scrapers sh ./crawl_all.sh
 
 ### PLACE ALL CRON TASKS ABOVE, DO NOT REMOVE THE WHITESPACE AFTER THIS LINE

@@ -190,8 +190,8 @@ git push dokku master
 
 ## Other settings
 
-By default, the `HTTPCACHE` extension is enabled, with resources cached for one week.
-This means that any data downloaded or websites visited are cached for one week to prevent
+By default, the `HTTPCACHE` extension is enabled, with resources cached for three hours.
+This means that any data downloaded or websites visited are cached for three hours to prevent
 overload of the sites. This means it is relatively risk-free to rerun scraping after 
 adjusting other settings for e.g. saving to a database. These settings can be changed
 if needed.

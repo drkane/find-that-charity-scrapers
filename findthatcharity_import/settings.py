@@ -94,7 +94,7 @@ ITEM_PIPELINES = {
 # Enable and configure HTTP caching (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html#httpcache-middleware-settings
 HTTPCACHE_ENABLED = True
-HTTPCACHE_EXPIRATION_SECS = 60 * 60 * 24 * 7 # one week
+HTTPCACHE_EXPIRATION_SECS = 60 * 60 * 3 # three hours
 HTTPCACHE_DIR = 'httpcache'
 HTTPCACHE_IGNORE_HTTP_CODES = []
 HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
