@@ -107,6 +107,7 @@ class OSCRSpider(BaseScraper):
             "email": None,
             "description": record.get("Objectives"),
             "organisationType": org_types,
+            "organisationTypePrimary": "Registered Charity",
             "url": self.parse_url(record.get("Website")),
             "location": [],
             "latestIncome": int(record["Most recent year income"]) if record.get("Most recent year income") else None,

@@ -112,6 +112,7 @@ class SchoolsWalesSpider(BaseScraper):
             "email": None,
             "description": None,
             "organisationType": self.get_org_types(record),
+            "organisationTypePrimary": self.get_org_types(record)[0],
             "url": None,
             "location": self.get_locations(record),
             "latestIncome": None,
@@ -125,15 +126,14 @@ class SchoolsWalesSpider(BaseScraper):
         })
 
     def get_org_types(self, record):
-        org_types = [
-            "Education",
-        ]
+        org_types = []
         for f in ["Sector", "Governance - see notes", "Welsh Medium Type - see notes", "School Type", "type"]:
             if record.get(f):
                 if record.get(f) == "PRU":
                     org_types.append("Pupil Referral Unit")
                 else:
                     org_types.append(record[f] + " School")
+        org_types.append("Education")
         return org_types
 
     def get_locations(self, record):

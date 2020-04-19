@@ -76,6 +76,7 @@ class LocalAuthorityNorthernIrelandSpider(BaseScraper):
             "email": None,
             "description": None,
             "organisationType": org_types,
+            "organisationTypePrimary": "Local Authority",
             "url": record.get("website"),
             "location": locations,
             "latestIncome": None,

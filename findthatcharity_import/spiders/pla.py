@@ -80,6 +80,7 @@ class LocalAuthorityWalesSpider(BaseScraper):
             "email": None,
             "description": None,
             "organisationType": org_types,
+            "organisationTypePrimary": "Local Authority",
             "url": None,
             "location": locations,
             "latestIncome": None,

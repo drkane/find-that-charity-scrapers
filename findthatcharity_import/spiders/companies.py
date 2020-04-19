@@ -173,6 +173,7 @@ class CompaniesSpider(BaseScraper):
             "email": None,
             "description": None,
             "organisationType": orgtypes,
+            "organisationTypePrimary": record.get("CompanyCategory", "Regisered Company"),
             "url": None,
             "location": [],
             "latestIncome": None,

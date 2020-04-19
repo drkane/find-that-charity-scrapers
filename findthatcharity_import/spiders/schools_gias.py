@@ -70,6 +70,17 @@ class GIASSpider(BaseScraper):
         self.source["modified"] = datetime.datetime.now().isoformat()
         return [scrapy.Request(response.urljoin(link), callback=self.parse_csv)]
 
+    def depluralise(self, s):
+        if not isinstance(s, str):
+            return s
+        if s == 'Other types':
+            return "Other school"
+        if s.endswith("ies"):
+            return s[:-3] + "y"
+        if s.endswith("s"):
+            return s[:-1]
+        return s
+
     def parse_row(self, record):
 
         record = self.clean_fields(record)
@@ -90,9 +101,10 @@ class GIASSpider(BaseScraper):
             description=None,
             organisationType=[
                 "Education",
-                record.get("EstablishmentTypeGroup (name)"),
-                record.get("TypeOfEstablishment (name)"),
+                self.depluralise(record.get("EstablishmentTypeGroup (name)")),
+                self.depluralise(record.get("TypeOfEstablishment (name)")),
             ],
+            organisationTypePrimary=self.depluralise(record.get("EstablishmentTypeGroup (name)")),
             url=self.parse_url(record.get("SchoolWebsite")),
             location=self.get_locations(record),
             latestIncome=None,

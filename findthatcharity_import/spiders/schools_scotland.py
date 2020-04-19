@@ -131,6 +131,7 @@ class SchoolsScotlandSpider(BaseScraper):
                 email=record.get("e_mail"),
                 description=None,
                 organisationType=self.get_org_types(record),
+                organisationTypePrimary=self.get_org_types(record)[1],
                 url=None,
                 location=self.get_locations(record),
                 latestIncome=None,

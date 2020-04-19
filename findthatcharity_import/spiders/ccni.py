@@ -94,6 +94,7 @@ class CCNISpider(BaseScraper):
             "email": record.get("Email"),
             "description": None,
             "organisationType": org_types,
+            "organisationTypePrimary": 'Registered Charity',
             "url": self.parse_url(record.get("Website")),
             "location": [],
             "latestIncome": int(record["Total income"]) if record.get("Total income") else None,

@@ -73,6 +73,7 @@ class GovernmentOrganisationSpider(BaseScraper):
             "email": None,
             "description": None,
             "organisationType": org_types,
+            "organisationTypePrimary": org_types[0],
             "url": record.get("website"),
             "location": [],
             "latestIncome": None,

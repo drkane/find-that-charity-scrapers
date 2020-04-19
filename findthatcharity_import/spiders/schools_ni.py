@@ -113,6 +113,7 @@ class SchoolsNISpider(BaseScraper):
                 record.get("Management"),
                 record.get("Type", "") + " School",
             ],
+            "organisationTypePrimary": record.get("Type", "") + " School",
             "url": None,
             "location": [],
             "latestIncome": None,

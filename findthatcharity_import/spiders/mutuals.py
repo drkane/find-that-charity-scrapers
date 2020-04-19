@@ -79,6 +79,7 @@
 #             "email": None,
 #             "description": record.get("Registration Act"),
 #             "organisationType": org_types,
+#             "organisationTypePrimary": record.get("Registered As"),
 #             "url": None,
 #             "location": [],
 #             "latestIncome": None,

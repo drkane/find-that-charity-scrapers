@@ -263,6 +263,7 @@ class CCEWSpider(BaseScraper):
                 "email": record.get("email"),
                 "description": self.get_objects(record),
                 "organisationType": org_types,
+                "organisationTypePrimary": 'Registered Charity',
                 "url": self.parse_url(record.get("web")),
                 "location": self.get_locations(record),
                 "latestIncome": int(record["income"]) if record.get("income") else None,

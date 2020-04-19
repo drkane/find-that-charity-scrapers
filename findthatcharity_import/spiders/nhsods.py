@@ -123,9 +123,10 @@ class NHSODSSpider(BaseScraper):
 
         record = self.clean_fields(record)
 
-        org_types = ["Health"]
+        org_types = []
         if org_type:
             org_types.append(org_type)
+        org_types.append("Health")
 
         address = {
             "streetAddress": record.get("Address Line 1"),
@@ -159,6 +160,7 @@ class NHSODSSpider(BaseScraper):
             "email": None,
             "description": None,
             "organisationType": org_types,
+            "organisationTypePrimary": org_types[0],
             "url": None,
             "location": [],
             "latestIncome": None,

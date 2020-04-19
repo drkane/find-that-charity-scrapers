@@ -74,6 +74,7 @@ class HesaSpider(BaseScraper):
                 "email": None,
                 "description": None,
                 "organisationType": self.org_types.get(cells[4].strip(), cells[4].strip()),
+                "organisationType": self.org_types.get(cells[4].strip(), ["Higher Education"])[0],
                 "url": None,
                 "location": [],
                 "latestIncome": None,
