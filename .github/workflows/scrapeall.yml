@@ -1,0 +1,76 @@
+name: Get latest cascs
+
+on:
+  push:
+  schedule:
+    - cron: '5 2 * * 1'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Crawl CASC
+      run: |
+        scrapy crawl casc
+    - name: Crawl CCNI
+      run: |
+        scrapy crawl ccni
+    - name: Crawl government organisations
+      run: |
+        scrapy crawl gor
+    - name: Crawl GRID
+      run: |
+        scrapy crawl grid
+    - name: Crawl Hesa
+      run: |
+        scrapy crawl hesa
+    - name: Crawl Local Authorities in England
+      run: |
+        scrapy crawl lae
+    - name: Crawl Local Authorities in Northern Ireland
+      run: |
+        scrapy crawl lani
+    - name: Crawl Local Authorities in Scotland
+      run: |
+        scrapy crawl las
+    - name: Crawl NHS organisations
+      run: |
+        scrapy crawl nhsods
+    - name: Crawl Local Authorities in Wales
+      run: |
+        scrapy crawl pla
+    - name: Crawl Local Authorities in Wales
+      run: |
+        scrapy crawl pla
+    - name: Crawl Registered Social Landlords
+      run: |
+        scrapy crawl rsl
+    - name: Crawl Northern Ireland Schools
+      run: |
+        scrapy crawl schools_ni
+    - name: Crawl Scotland Schools
+      run: |
+        scrapy crawl schools_scotland
+    - name: Crawl Wales Schools
+      run: |
+        scrapy crawl schools_wales
+    - name: Commit files
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Update by GitHub Action" -a)
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}

@@ -4,8 +4,6 @@ import math
 import dateutil.parser
 import scrapy
 
-from .db import tables
-
 class Organisation(scrapy.Item):
     """
     Item representing an organisation from the scrapers
@@ -48,51 +46,6 @@ class Organisation(scrapy.Item):
             " INACTIVE" if not self.get("active") else ""
         )
 
-    def to_elasticsearch(self):
-        es_item = dict(self)
-        es_item["_index"] = self.__class__.__name__.lower()
-        es_item["_op_type"] = "index"
-        es_item["_id"] = es_item["id"]
-        del es_item["id"]
-
-        # get names
-        es_item["complete_names"] = {
-            "input": self.get_complete_names(es_item),
-            "weight": max(1, math.ceil(math.log1p((es_item.get("latestIncome", 0) or 0))))
-        }
-
-        return es_item
-
-    @staticmethod
-    def es_mapping():
-        return {
-            "properties": {
-                "geo": {
-                    "properties": {
-                        "location": {
-                            "type": "geo_point"
-                        }
-                    }
-                },
-                "complete_names": {
-                    "type": "completion",
-                    "contexts": [
-                        {
-                            "name": "organisationType",
-                            "type": "category",
-                            "path": "organisationType"
-                        }
-                    ],
-                }
-            }
-        }
-
-    def to_mongodb(self):
-        md_item = dict(self)
-        md_item["_id"] = md_item["id"]
-        del md_item["id"]
-        return ('organisation', md_item)
-
     def get_complete_names(self, item):
 
         # get names
@@ -115,19 +68,6 @@ class Organisation(scrapy.Item):
                 words.update([" ".join(w[r:]) for r in range(len(w))])
         return list(words)
 
-    def to_tables(self):
-        return {
-            "organisation": [{
-                c.name: self.get(c.name, None) for c in tables["organisation"].columns
-            }],
-            "organisation_links": [{
-                "organisation_id_a": self.get("id"),
-                "organisation_id_b": i,
-                "source": self.get("source")
-            } for i in self.get("orgIDs", []) if i and i != self.get("id")],
-        }
-
-
 
 class Source(scrapy.Item):
     """
@@ -146,34 +86,6 @@ class Source(scrapy.Item):
     def __repr__(self):
         return '<Source "{}">'.format(self.get("title"))
 
-    def to_elasticsearch(self):
-        es_item = dict(self)
-        es_item["_index"] = self.__class__.__name__.lower()
-        es_item["_op_type"] = "index"
-        es_item["_id"] = es_item["identifier"]
-        return es_item
-
-    def to_mongodb(self):
-        md_item = dict(self)
-        md_item["_id"] = md_item["identifier"]
-        return ('source', md_item)
-
-    def to_tables(self):
-        source = {}
-        for c in tables["source"].columns:
-            source[c.name] = self.get(c.name, None)
-            if source[c.name] == "":
-                source[c.name] = None
-        if source["modified"] and isinstance(source["modified"], str):
-            source["modified"] = dateutil.parser.parse(source["modified"])
-        if source["issued"] and isinstance(source["issued"], str):
-            source["issued"] = dateutil.parser.parse(source["issued"])
-        source["publisher_name"] = self.get("publisher", {}).get("name")
-        source["publisher_website"] = self.get("publisher", {}).get("website")
-
-        return {
-            "source": [source],
-        }
 
 class Link(scrapy.Item):
     """
@@ -187,13 +99,6 @@ class Link(scrapy.Item):
     def __repr__(self):
         return '<Link {} and {}>'.format(self.get("organisation_id_a"), self.get("organisation_id_b"))
 
-    def to_tables(self):
-
-        return {
-            "organisation_links": [{
-                c.name: self.get(c.name, None) for c in tables["organisation_links"].columns
-            }],
-        }
 
 class Identifier(scrapy.Item):
     """
@@ -248,14 +153,6 @@ class Identifier(scrapy.Item):
 
     def __repr__(self):
         return '<Identifier {}>'.format(self.get("code"))
-
-    def to_tables(self):
-
-        return {
-            "identifier": [{
-                c.name: self.get(c.name, None) for c in tables["identifier"].columns
-            }],
-        }
 
 
 AREA_TYPES = {
