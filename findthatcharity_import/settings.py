@@ -12,7 +12,7 @@
 BOT_NAME = 'findthatcharity_import'
 
 SPIDER_MODULES = ['findthatcharity_import.spiders']
-# COMMANDS_MODULE = 'findthatcharity_import.commands'
+COMMANDS_MODULE = 'findthatcharity_import.commands'
 NEWSPIDER_MODULE = 'findthatcharity_import.spiders'
 
 DEBUG_ENABLED = False
@@ -72,7 +72,10 @@ ROBOTSTXT_OBEY = False
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    'findthatcharity_import.pipelines.MultiCSVPipeline.MultiCSVPipeline': 300,
+    # 'findthatcharity_import.pipelines.postcode_lookup_pipeline.PostcodeLookupPipeline': 100,
+    'findthatcharity_import.pipelines.sqlsave_pipeline.SQLSavePipeline': 300,
+    'findthatcharity_import.pipelines.elasticsearch_pipeline.ElasticSearchPipeline': 300,
+    'findthatcharity_import.pipelines.mongodb_pipeline.MongoDBPipeline': 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
