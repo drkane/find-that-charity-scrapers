@@ -50,9 +50,6 @@ jobs:
     - name: Crawl Local Authorities in Wales
       run: |
         scrapy crawl pla
-    - name: Crawl Local Authorities in Wales
-      run: |
-        scrapy crawl pla
     - name: Crawl Registered Social Landlords
       run: |
         scrapy crawl rsl
