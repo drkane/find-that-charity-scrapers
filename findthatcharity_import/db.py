@@ -1,7 +1,8 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.expression import Insert
-from sqlalchemy import MetaData, Column, BigInteger, Integer, String, Date, DateTime, Boolean, Text, Table, Float, ForeignKey, JSON
+from sqlalchemy import MetaData, Column, BigInteger, Integer, String, Date, DateTime, Boolean, Text, Table, Float, ForeignKey
+from sqlalchemy.dialects.postgresql import JSONB
 import datetime
 
 Base = declarative_base()
@@ -30,10 +31,10 @@ tables["organisation"] = Table('organisation', metadata,
     Column("status", String),
     Column("parent", String),
     Column("dateModified", DateTime),
-    Column("location", JSON),
-    Column("orgIDs", JSON),
-    Column("alternateName", JSON),
-    Column("organisationType", JSON),
+    Column("location", JSONB),
+    Column("orgIDs", JSONB),
+    Column("alternateName", JSONB),
+    Column("organisationType", JSONB),
     Column("organisationTypePrimary", String),
     Column("source", String),
     Column("spider", String),
@@ -50,7 +51,7 @@ tables["source"] = Table('source', metadata,
     Column("modified", DateTime),
     Column("publisher_name", String),
     Column("publisher_website", String),
-    Column("distribution", JSON),
+    Column("distribution", JSONB),
 )
 
 tables["organisation_links"] = Table('organisation_links', metadata,
