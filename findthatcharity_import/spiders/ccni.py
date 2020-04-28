@@ -32,7 +32,7 @@ class CCNISpider(BaseScraper):
         "modified": "",
         "publisher": {
             "name": "Charity Commission for Northern Ireland",
-            "website": "https://www.education-ni.gov.uk/",
+            "website": "https://www.charitycommissionni.org.uk/",
         },
         "distribution": [
             {
