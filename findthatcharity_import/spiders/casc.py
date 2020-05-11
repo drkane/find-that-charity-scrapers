@@ -5,16 +5,20 @@ import hashlib
 import scrapy
 
 from .base_scraper import BaseScraper
-from ..items import Organisation, Source
+from ..items import Link, Organisation, Source
 
 class CascSpider(BaseScraper):
     name = 'casc'
-    allowed_domains = ['gov.uk']
-    start_urls = ["https://www.gov.uk/government/publications/community-amateur-sports-clubs-casc-registered-with-hmrc--2"]
+    allowed_domains = ['raw.githubusercontent.com']
+    start_urls = [
+        "https://raw.githubusercontent.com/ThreeSixtyGiving/cascs/master/cascs.csv",
+        "https://raw.githubusercontent.com/ThreeSixtyGiving/cascs/master/casc_company_house.csv",
+    ]
     org_id_prefix = "GB-CASC"
+    id_field = "id"
     source = {
         "title": "Community amateur sports clubs (CASCs) registered with HMRC",
-        "description": "Check which sports clubs are registered with HMRC as community amateur sports clubs as at April 2018.",
+        "description": "Check which sports clubs are registered with HMRC as community amateur sports clubs. Processed by 360Giving",
         "identifier": "casc",
         "license": "http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
         "license_name": "Open Government Licence v3.0",
@@ -24,87 +28,68 @@ class CascSpider(BaseScraper):
             "name": "HMRC",
             "website": "https://www.gov.uk/government/organisations/hm-revenue-customs",
         },
-        "distribution": [],
+        "distribution": [
+            {
+                "downloadURL": "https://github.com/threesixtygiving/cascs",
+                "accessURL": "https://www.gov.uk/government/publications/community-amateur-sports-clubs-casc-registered-with-hmrc--2",
+                "title": "Government organisations on GOV.UK register"
+            }
+        ],
     }
 
     def start_requests(self):
-        return [scrapy.Request(self.start_urls[0], callback=self.find_files)]
 
-    def find_files(self, response):
-        self.rowcount = 0
-        for list_page in response.css(".attachment-details h2"):
-            yield response.follow(list_page.css("a::attr(href)").extract_first(), callback=self.parse)
-
+        self.source["distribution"][0]["downloadURL"] = self.start_urls[0]
         self.source["modified"] = datetime.datetime.now().isoformat()
-        yield Source(**self.source)
 
-    def parse(self, response):
-        """
-        Parse an individual page on the HMRC website
-        """
+        return [
+            scrapy.Request(self.start_urls[0], callback=self.parse_csv),
+            scrapy.Request(self.start_urls[1], callback=self.parse_csv),
+        ]
 
-        self.source["distribution"] = [{
-            "downloadURL": response.url,
-            "accessURL": self.start_urls[0],
-            "title": "Community amateur sports clubs (CASCs) registered with HMRC - {}".format(
-                response.css("h1.gem-c-title__text::text").extract_first().strip()
-            )
-        }]
-        yield Source(**self.source)
+    def parse_row(self, record):
 
-        for table in response.css(".govspeak > table"):
-            for row in table.css("tbody > tr"):
-                cells = row.css("td::text").extract()
-                self.rowcount += 1
+        record = self.clean_fields(record)
+        if "casc_orgid" in record.keys():
+            return self.parse_row_coyno(record)
+        else:
+            return self.parse_row_main(record)
+    
+    def parse_row_coyno(self, record):
+        return Link(**{
+            "organisation_id_a": record['casc_orgid'],
+            "organisation_id_b": record['ch_orgid'],
+            "source": self.source["identifier"]
+        })
 
-                if self.settings.getbool("DEBUG_ENABLED") and self.rowcount > self.settings.getint("DEBUG_ROWS", 100):
-                    break
+    def parse_row_main(self, record):
 
-                address = dict(enumerate([v.strip() for v in cells[1].split(",", maxsplit=2)]))
+        address = dict(enumerate([v.strip() for v in record["address"].split(",", maxsplit=2)]))
 
-                yield Organisation(**{
-                    "id": self.get_org_id(cells),
-                    "name": cells[0],
-                    "charityNumber": None,
-                    "companyNumber": None,
-                    "streetAddress": address.get(0),
-                    "addressLocality": address.get(1),
-                    "addressRegion": address.get(2),
-                    "addressCountry": None,
-                    "postalCode": self.parse_postcode(cells[2]),
-                    "telephone": None,
-                    "alternateName": [],
-                    "email": None,
-                    "description": None,
-                    "organisationType": ["Community Amateur Sports Club", "Sports Club"],
-                    "organisationTypePrimary": ["Community Amateur Sports Club"],
-                    "url": None,
-                    "location": [],
-                    "latestIncome": None,
-                    "dateModified": datetime.datetime.now(),
-                    "dateRegistered": None,
-                    "dateRemoved": None,
-                    "active": True,
-                    "parent": None,
-                    "orgIDs": [self.get_org_id(cells)],
-                    "source": self.source["identifier"],
-                })
-
-    def get_org_id(self, record):
-        """
-        CASCs don't come with a ID, so we're creating a dummy one.
-
-        This is defined by:
-
-        1. Put together the name of the club + the postcode (or the string None if there is no postcode)
-        2. Take the MD5 hash of the utf8 representation of this string
-        3. Use the first 8 characters of the hexdigest of this hash
-        """
-
-        def hash_id(w):
-            return hashlib.md5(w.encode("utf8")).hexdigest()[0:8]
-
-        return "-".join([
-            self.org_id_prefix,
-            hash_id(str(record[0])+str(record[2]))
-        ])
+        return Organisation(**{
+            "id": record["id"],
+            "name": record["name"],
+            "charityNumber": None,
+            "companyNumber": None,
+            "streetAddress": address.get(0),
+            "addressLocality": address.get(1),
+            "addressRegion": address.get(2),
+            "addressCountry": None,
+            "postalCode": self.parse_postcode(record['postcode']),
+            "telephone": None,
+            "alternateName": [],
+            "email": None,
+            "description": None,
+            "organisationType": ["Community Amateur Sports Club", "Sports Club"],
+            "organisationTypePrimary": ["Community Amateur Sports Club"],
+            "url": None,
+            "location": [],
+            "latestIncome": None,
+            "dateModified": datetime.datetime.now(),
+            "dateRegistered": None,
+            "dateRemoved": None,
+            "active": True,
+            "parent": None,
+            "orgIDs": [record["id"]],
+            "source": self.source["identifier"],
+        })
