@@ -3,6 +3,7 @@ import json
 import logging
 import uuid
 import datetime
+from io import StringIO
 
 from sqlalchemy import create_engine, and_
 from sqlalchemy.exc import InternalError, IntegrityError
@@ -23,6 +24,14 @@ class SQLSavePipeline(object):
         self.stats = stats
         self.spider_name = None
         self.crawl_id = uuid.uuid4().hex
+
+        self.log_stream = StringIO()
+        self.log_handler = logging.StreamHandler(self.log_stream)
+        formatter = logging.Formatter('%(asctime)s [%(name)s] %(levelname)s: %(message)s')
+        self.log_handler.setLevel(logging.INFO)
+        self.log_handler.setFormatter(formatter)
+        self.log = logging.getLogger()
+        self.log.addHandler(self.log_handler)
         
         # logging.basicConfig()
         # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
@@ -158,5 +167,6 @@ class SQLSavePipeline(object):
             "items": stats.get('item_scraped_count', 0),
             "start_time": stats.get('start_time', datetime.datetime.utcnow()),
             "finish_time": stats.get('finish_time'),
+            "log": self.log_stream.getvalue(),
         }
         self.records['scrape'].append(to_save)
