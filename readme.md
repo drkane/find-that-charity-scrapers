@@ -154,40 +154,6 @@ The following settings are defined:
 - `MONGO_COLLECTION`: The default name of the MongoDB collection (only used if not returned by `item.to_mongodb()`) (Default `organisation`)
 - `MONGO_BULK_LIMIT`: The chunk size used for sending data to mongoDB (Default `50000`)
 
-## Deploying with dokku
-
-A dockerfile has been included ([source from here](https://github.com/cdrx/scrapyd-authenticated))
-which enables use as a dokku or other hosting service server.
-
-To deploy to Dokku use the following configuration:
-
-### 1. Set up dokku server
-
-SSH into server and run:
-
-```bash
-# create app
-dokku apps:create ftc-scrapers
-
-# scale the cron container
-dokku ps:scale ftc-scrapers cron=1
-
-# set up so no checks are run on deploy
-dokku checks:skip ftc-scrapers web
-
-# set the DB_URI so that data is saved to the database
-dokku config:set ftc-scrapers DB_URI='protocol://user:password@host:db'
-```
-
-### 2. Add as a git remote and push
-
-On local machine:
-
-```bash
-git remote add dokku dokku@SERVER_HOST:ftc-scrapers
-git push dokku master
-```
-
 ## Other settings
 
 By default, the `HTTPCACHE` extension is enabled, with resources cached for three hours.
