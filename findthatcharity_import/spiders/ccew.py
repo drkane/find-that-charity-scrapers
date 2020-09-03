@@ -24,14 +24,14 @@ class CCEWSpider(BaseScraper):
     }
     allowed_domains = ['charitycommission.gov.uk']
     start_urls = [
-        "http://data.charitycommission.gov.uk/",
+        "https://register-of-charities.charitycommission.gov.uk/register/full-register-download",
         "https://raw.githubusercontent.com/drkane/charity-lookups/master/cc-aoo-gss-iso.csv",
     ]
     org_id_prefix = "GB-CHC"
     id_field = "regno"
     date_fields = []
     date_format = "%Y-%m-%d %H:%M:%S"
-    zip_regex = re.compile(r"http://apps.charitycommission.gov.uk/data/.*?/RegPlusExtract.*?\.zip")
+    zip_regex = re.compile(r"RegPlusExtract.*?\.zip")
     source = {
         "title": "Registered charities in England and Wales",
         "description": "Data download service provided by the Charity Commission",
