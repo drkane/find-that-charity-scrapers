@@ -1,5 +1,13 @@
 # find-that-charity-scrapers
 
+
+# !!! No longer in use !!!
+
+Instead, the scrapers are available in:
+
+ - <https://github.com/drkane/find-that-charity/tree/master/charity/management/commands>
+ - <https://github.com/drkane/find-that-charity/tree/master/ftc/management/commands>
+
 A collection of scrapers used to add data to <https://findthatcharity.uk/>.
 The scrapers use [scrapy](https://scrapy.org/) and can currently save data to
 an SQL database (designed for postgres), an elasticsearch index or mongodb 
